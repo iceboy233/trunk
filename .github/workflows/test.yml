@@ -4,5 +4,7 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
-      - uses: ngalaiko/bazel-action/1.2.1@master
-        run: bazel test --cxxopt=-std=c++17 ...
+      - name: bazel test
+        uses: ngalaiko/bazel-action/1.2.1@master
+        with:
+          args: test --cxxopt=-std=c++17 ...
