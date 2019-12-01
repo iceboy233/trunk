@@ -1,0 +1,5 @@
+namespace util.fbs;
+
+table TestTable {
+    dummy: int32;
+}
