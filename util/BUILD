@@ -34,6 +34,25 @@ cc_test(
 )
 
 cc_library(
+    name = "flatbuffers-reflection",
+    srcs = ["flatbuffers-reflection.cc"],
+    hdrs = ["flatbuffers-reflection.h"],
+    deps = [
+        "@com_github_google_flatbuffers//:flatbuffers",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+cc_test(
+    name = "flatbuffers-reflection_test",
+    srcs = ["flatbuffers-reflection_test.cc"],
+    deps = [
+        ":flatbuffers-reflection",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "utf",
     srcs = ["utf.cc"],
     hdrs = ["utf.h"],

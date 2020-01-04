@@ -5,7 +5,7 @@
 namespace util {
 namespace {
 
-TEST(FibonacciSequenceTest, Values) {
+TEST(FibonacciSequenceTest, values) {
     FibonacciSequence<int> fib;
     EXPECT_EQ(fib.a(), 1);
     fib.next();
