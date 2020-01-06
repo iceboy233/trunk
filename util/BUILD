@@ -53,6 +53,21 @@ cc_test(
 )
 
 cc_library(
+    name = "iostream",
+    srcs = ["iostream.cc"],
+    hdrs = ["iostream.h"],
+)
+
+cc_test(
+    name = "iostream_test",
+    srcs = ["iostream_test.cc"],
+    deps = [
+        ":iostream",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "utf",
     srcs = ["utf.cc"],
     hdrs = ["utf.h"],
