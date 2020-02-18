@@ -14,3 +14,21 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_library(
+    name = "blocking-result",
+    hdrs = ["blocking-result.h"],
+    deps = [
+        ":asio",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "blocking-result_test",
+    srcs = ["blocking-result_test.cc"],
+    deps = [
+        ":blocking-result",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
