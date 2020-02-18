@@ -1,11 +1,23 @@
 name: test
 on: [push]
 jobs:
-  test:
+  build:
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
-      - name: bazel test
-        uses: ngalaiko/bazel-action/1.2.1@master
-        with:
-          args: test --cxxopt=-std=c++17 ...
+    - uses: actions/checkout@v1
+
+    - name: mount bazel cache
+      uses: actions/cache@v1
+      with:
+        key: bazel
+        path: "/home/runner/.cache/bazel"
+
+    - name: install bazelisk
+      run: |
+        mkdir -p "${GITHUB_WORKSPACE}/bin/"
+        curl -Lo "${GITHUB_WORKSPACE}/bin/bazel" "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64"
+        chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
+
+    - name: test
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" test --cxxopt=-std=c++17 //...
