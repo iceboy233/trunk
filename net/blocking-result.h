@@ -7,7 +7,7 @@
 namespace net {
 
 template <typename ...ArgsT>
-class BlockingResult : public std::tuple<ArgsT...> {
+class BlockingResult {
 public:
     BlockingResult() = default;
     BlockingResult(const BlockingResult &) = delete;
@@ -16,27 +16,18 @@ public:
     auto callback();
     bool run(io_context &io_context);
     void reset() { done_ = false; }
-
-    template <size_t I>
-    auto &get() {
-        return std::get<I>(static_cast<std::tuple<ArgsT...> &>(*this));
-    }
-
-    template <size_t I>
-    const auto &get() const {
-        return std::get<I>(static_cast<const std::tuple<ArgsT...> &>(*this));
-    }
+    const std::tuple<ArgsT...> &args() const { return args_; }
 
 private:
     bool done_ = false;
+    std::tuple<ArgsT...> args_;
 };
 
 template <typename ...ArgsT>
 auto BlockingResult<ArgsT...>::callback() {
     return [this](ArgsT ...args) {
-        static_cast<std::tuple<ArgsT...> &>(*this) = std::make_tuple(
-            std::move(args)...);
         done_ = true;
+        args_ = std::make_tuple(std::move(args)...);
     };
 }
 
