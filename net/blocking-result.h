@@ -16,6 +16,8 @@ public:
     auto callback();
     bool run(io_context &io_context);
     void reset() { done_ = false; }
+
+    std::tuple<ArgsT...> &args() { return args_; }
     const std::tuple<ArgsT...> &args() const { return args_; }
 
 private:
