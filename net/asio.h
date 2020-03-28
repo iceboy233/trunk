@@ -6,8 +6,6 @@
 
 namespace net {
 
-namespace error = boost::asio::error;
-
 using boost::asio::async_connect;
 using boost::asio::async_read;
 using boost::asio::async_read_until;
@@ -45,7 +43,6 @@ using boost::asio::ip::make_address_v4;
 using boost::asio::ip::make_address_v6;
 using boost::asio::ip::tcp;
 using boost::asio::ip::udp;
-using boost::system::error_code;
 
 }  // namespace net
 
