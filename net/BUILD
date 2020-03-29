@@ -32,3 +32,23 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_library(
+    name = "ip-encoding",
+    srcs = ["ip-encoding.cc"],
+    hdrs = ["ip-encoding.h"],
+    deps = [
+        ":asio",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+cc_test(
+    name = "ip-encoding_test",
+    srcs = ["ip-encoding_test.cc"],
+    deps = [
+        ":asio",
+        ":ip-encoding",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
