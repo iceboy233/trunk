@@ -37,4 +37,61 @@ void utf16_to_utf8(const char16_t *input, size_t input_size, char *output) {
     }
 }
 
+size_t utf8_to_utf16_size(const char *input, size_t input_size) {
+    size_t output_size = 0;
+    while (input_size) {
+        char c = *input;
+        if ((c & 0xc0) == 0xc0) {
+            if ((c & 0xe0) == 0xe0) {
+                if (input_size < 3) {
+                    break;
+                }
+                input += 3;
+                input_size -= 3;
+            } else {
+                if (input_size < 2) {
+                    break;
+                }
+                input += 2;
+                input_size -= 2;
+            }
+        } else {
+            ++input;
+            --input_size;
+        }
+        ++output_size;
+    }
+    return output_size;
+}
+
+void utf8_to_utf16(const char *input, size_t input_size, char16_t *output) {
+    while (input_size) {
+        char c = *input;
+        if ((c & 0xc0) == 0xc0) {
+            if ((c & 0xe0) == 0xe0) {
+                if (input_size < 3) {
+                    break;
+                }
+                *output++ = (static_cast<char16_t>(c & 0x1f) << 12) |
+                            (static_cast<char16_t>(input[1] & 0x3f) << 6) |
+                            static_cast<char16_t>(input[2] & 0x3f);
+                input += 3;
+                input_size -= 3;
+            } else {
+                if (input_size < 2) {
+                    break;
+                }
+                *output++ = (static_cast<char16_t>(c & 0x3f) << 6) |
+                            static_cast<char16_t>(input[1] & 0x3f);
+                input += 2;
+                input_size -= 2;
+            }
+        } else {
+            *output++ = static_cast<char16_t>(c & 0x7f);
+            ++input;
+            --input_size;
+        }
+    }
+}
+
 }  // namespace util
