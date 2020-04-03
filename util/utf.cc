@@ -35,7 +35,7 @@ void utf16_to_utf8(std::u16string_view input, char *output) {
     }
 }
 
-size_t utf8_to_utf16_size(std::string_view input) {
+size_t utf8_length(std::string_view input) {
     size_t output_size = 0;
     while (!input.empty()) {
         char c = input[0];
