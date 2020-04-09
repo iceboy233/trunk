@@ -23,7 +23,7 @@ public:
     using Duration = typename ClockT::duration;
     using TimePoint = typename ClockT::time_point;
 
-    BasicTimerList(const ExecutorT &executor, Duration duration);
+    BasicTimerList(const ExecutorT &executor, const Duration &duration);
 
 private:
     struct Entry;
@@ -55,7 +55,7 @@ using TimerList = BasicTimerList<std::chrono::steady_clock>;
 
 template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
 BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::BasicTimerList(
-    const ExecutorT &executor, Duration duration)
+    const ExecutorT &executor, const Duration &duration)
     : duration_(duration), timer_(executor) {}
 
 template <typename ClockT, typename WaitTraitsT, typename ExecutorT>

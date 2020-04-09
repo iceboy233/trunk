@@ -65,6 +65,8 @@ cc_test(
     deps = [
         ":asio",
         ":timer-list",
+        "//net/testing:timer",
+        "//util/testing:clock",
         "@com_google_googletest//:gtest_main",
     ],
 )
