@@ -52,3 +52,19 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_library(
+    name = "timer-list",
+    hdrs = ["timer-list.h"],
+    deps = [":asio"],
+)
+
+cc_test(
+    name = "timer-list_test",
+    srcs = ["timer-list_test.cc"],
+    deps = [
+        ":asio",
+        ":timer-list",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
