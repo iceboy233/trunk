@@ -35,7 +35,7 @@ public:
     Handle schedule(std::function<void()> callback);
     void update(Handle handle);
     void cancel(Handle handle);
-    Handle null_handle() const { return list_.end(); }
+    Handle null_handle() { return list_.end(); }
 
 private:
     struct Entry {
