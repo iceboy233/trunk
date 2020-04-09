@@ -13,16 +13,16 @@ namespace net {
 // The provided executor must be single-threaded, and all functions must be
 // called in the executor thread.
 template <
-    typename Clock,
-    typename WaitTraits = wait_traits<Clock>,
-    typename Executor = executor>
+    typename ClockT,
+    typename WaitTraitsT = wait_traits<ClockT>,
+    typename ExecutorT = executor>
 class BasicTimerList {
 public:
-    using Timer = basic_waitable_timer<Clock, WaitTraits, Executor>;
-    using Duration = typename Clock::duration;
-    using TimePoint = typename Clock::time_point;
+    using Timer = basic_waitable_timer<ClockT, WaitTraitsT, ExecutorT>;
+    using Duration = typename ClockT::duration;
+    using TimePoint = typename ClockT::time_point;
 
-    BasicTimerList(const Executor &executor, Duration duration);
+    BasicTimerList(const ExecutorT &executor, Duration duration);
 
 private:
     struct Entry;
@@ -52,16 +52,16 @@ private:
 
 using TimerList = BasicTimerList<std::chrono::steady_clock>;
 
-template <typename Clock, typename WaitTraits, typename Executor>
-BasicTimerList<Clock, WaitTraits, Executor>::BasicTimerList(
-    const Executor &executor, Duration duration)
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::BasicTimerList(
+    const ExecutorT &executor, Duration duration)
     : duration_(duration), timer_(executor) {}
 
-template <typename Clock, typename WaitTraits, typename Executor>
-typename BasicTimerList<Clock, WaitTraits, Executor>::Handle
-BasicTimerList<Clock, WaitTraits, Executor>::schedule(
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+typename BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Handle
+BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::schedule(
     std::function<void()> callback) {
-    list_.push_back({Clock::now() + duration_, std::move(callback)});
+    list_.push_back({ClockT::now() + duration_, std::move(callback)});
     Handle handle = list_.end();
     --handle;
     if (list_.size() == 1) {
@@ -70,29 +70,29 @@ BasicTimerList<Clock, WaitTraits, Executor>::schedule(
     return handle;
 }
 
-template <typename Clock, typename WaitTraits, typename Executor>
-void BasicTimerList<Clock, WaitTraits, Executor>::update(Handle handle) {
-    handle->expiry = Clock::now() + duration_;
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::update(Handle handle) {
+    handle->expiry = ClockT::now() + duration_;
     list_.splice(list_.end(), list_, handle);
 }
 
-template <typename Clock, typename WaitTraits, typename Executor>
-void BasicTimerList<Clock, WaitTraits, Executor>::cancel(Handle handle) {
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::cancel(Handle handle) {
     list_.erase(handle);
     if (list_.empty()) {
         timer_.cancel();
     }
 }
 
-template <typename Clock, typename WaitTraits, typename Executor>
-void BasicTimerList<Clock, WaitTraits, Executor>::wait() {
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::wait() {
     timer_.expires_at(list_.front().expiry);
     timer_.async_wait([this](std::error_code ec) {
         if (ec) {
             // TODO(iceboy): Error handling.
             return;
         }
-        TimePoint now = Clock::now();
+        TimePoint now = ClockT::now();
         while (!list_.empty() && list_.front().expiry <= now) {
             list_.front().callback();
             list_.pop_front();
