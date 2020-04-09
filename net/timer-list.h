@@ -1,6 +1,7 @@
 #ifndef _NET_TIMER_LIST_H
 #define _NET_TIMER_LIST_H
 
+#include <functional>
 #include <list>
 #include <system_error>
 #include "net/asio.h"
