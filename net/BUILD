@@ -18,10 +18,7 @@ cc_test(
 cc_library(
     name = "blocking-result",
     hdrs = ["blocking-result.h"],
-    deps = [
-        ":asio",
-        "@com_google_googletest//:gtest_main",
-    ],
+    deps = [":asio"],
 )
 
 cc_test(
