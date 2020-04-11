@@ -1,0 +1,7 @@
+namespace net.rpc.fbs;
+
+table ListRequest {}
+
+table ListResponse {
+    methods: [string];
+}

@@ -10,7 +10,7 @@ git_repository(
 
 git_repository(
     name = "com_github_google_flatbuffers",
-    commit = "136d75fa6580ef87d1b7cbc243e617f21149852e",
+    commit = "6df40a2471737b27271bdd9b900ab5f3aec746c7",
     remote = "https://github.com/google/flatbuffers.git",
 )
 
