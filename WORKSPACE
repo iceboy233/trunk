@@ -3,6 +3,12 @@ workspace(name = "org_iceboy_trunk")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
+    name = "boringssl",
+    commit = "127d006498acc7c932b85d41d5f4ba3f0cbfbfd6",
+    remote = "https://github.com/google/boringssl.git",
+)
+
+git_repository(
     name = "com_github_google_flatbuffers",
     commit = "136d75fa6580ef87d1b7cbc243e617f21149852e",
     remote = "https://github.com/google/flatbuffers.git",
@@ -10,7 +16,7 @@ git_repository(
 
 git_repository(
     name = "com_google_absl",
-    commit = "aa844899c937bde5d2b24f276b59997e5b668bde",
+    commit = "62f05b1f57ad660e9c09e02ce7d591dcc4d0ca08",
     remote = "https://github.com/abseil/abseil-cpp.git",
 )
 
