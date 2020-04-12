@@ -34,7 +34,7 @@ public:
 
 private:
     class Impl;
-    std::shared_ptr<Impl> impl_;
+    std::shared_ptr<const Impl> impl_;
 };
 
 bool operator==(const Key &a, const Key &b);

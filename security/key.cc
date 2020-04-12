@@ -27,7 +27,7 @@ public:
 
     uint64_t fingerprint() const { return fingerprint_; }
     const KeyArray &array() const { return array_; }
-    EVP_AEAD_CTX &context() { return context_; }
+    const EVP_AEAD_CTX &context() const { return context_; }
 
 private:
     uint64_t fingerprint_;
