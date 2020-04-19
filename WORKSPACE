@@ -28,7 +28,7 @@ git_repository(
 
 git_repository(
     name = "org_boost_boost",
-    commit = "d5b8d10a3ea6d43325da89d4ec3a796b274761c4",
+    commit = "759ce4a7e3bc7c5f0a0dddfee947b5758f9d7f70",
     remote = "https://github.com/iceb0y/boost.git",
 )
 

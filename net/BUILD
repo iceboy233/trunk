@@ -31,6 +31,20 @@ cc_test(
 )
 
 cc_library(
+    name = "icmp-client",
+    srcs = ["icmp-client.cc"],
+    hdrs = ["icmp-client.h"],
+    deps = [
+        ":asio",
+        ":timer-list",
+        "//base:packed",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@org_boost_boost//:process",
+        "@org_boost_boost//:smart_ptr",
+    ],
+)
+
+cc_library(
     name = "ip-encoding",
     srcs = ["ip-encoding.cc"],
     hdrs = ["ip-encoding.h"],
