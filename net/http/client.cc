@@ -5,6 +5,7 @@
 #include <boost/beast/core.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include "absl/strings/str_cat.h"
 
 namespace net {
 namespace http {
@@ -160,7 +161,7 @@ template <typename StreamT>
 void Client::ConnectionImpl<StreamT>::resolve() {
     client_.tcp_resolver_.async_resolve(
         host_,
-        std::to_string(port_),
+        absl::StrCat(port_),
         [this, _ = boost::intrusive_ptr<ConnectionImpl<StreamT>>(this)](
             std::error_code ec, const tcp::resolver::results_type &endpoints) {
             if (ec) {
