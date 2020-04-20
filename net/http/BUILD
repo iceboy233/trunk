@@ -16,7 +16,7 @@ cc_library(
         "//net:timer-list",
         "@boringssl//:ssl",
         "@com_google_absl//absl/container:flat_hash_map",
-        "@org_boost_boost//:asio"
+        "@org_boost_boost//:asio",
         "@org_boost_boost//:smart_ptr",
     ],
 )
