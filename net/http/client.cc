@@ -8,25 +8,25 @@
 
 namespace net {
 namespace http {
+namespace {
+
+struct RequestState {
+    Request request;
+    std::function<void(ResponseParser &)> progress_callback;
+    std::function<void(std::error_code, Response)> callback;
+};
+
+}  // namespace
 
 class Client::Connection : public boost::intrusive_ref_counter<
     Connection, boost::thread_unsafe_counter> {
 public:
-    explicit Connection(Client &client) : client_(client) {}
-    Connection(const Connection &connection) = delete;
-    Connection &operator=(const Connection &connection) = delete;
     virtual ~Connection() = default;
-
     virtual void resolve() = 0;
     virtual void write() = 0;
     virtual void close() = 0;
 
-    void attach(
-        Request &&request,
-        std::function<void(ResponseParser &)> &&progress_callback,
-        std::function<void(std::error_code, Response)> &&callback);
-    void keep_alive();
-    void finish(std::error_code ec, Response response);
+    void start(RequestState request_state);
 
     TimerList::Handle &timer_handle() { return timer_handle_; }
 
@@ -35,17 +35,16 @@ public:
     }
 
 protected:
-    Client &client_;
-    Request request_;
-    std::function<void(ResponseParser &)> progress_callback_;
-    std::function<void(std::error_code, Response)> callback_;
+    void finish(std::error_code ec, Response response);
+
+    RequestState request_state_;
     TimerList::Handle timer_handle_;
     std::optional<std::list<Connection *>::iterator> connections_iter_;
 };
 
 template <typename StreamT>
 class Client::ConnectionImpl : public Client::Connection {
-public:
+protected:
     template <typename ...ArgsT>
     ConnectionImpl(
         Client &client,
@@ -53,7 +52,7 @@ public:
         std::string_view host,
         uint16_t port,
         ArgsT &&...args)
-        : Connection(client),
+        : client_(client),
           stream_(client_.executor_, std::forward<ArgsT>(args)...),
           protocol_(protocol),
           host_(host),
@@ -62,12 +61,13 @@ public:
     void resolve();
     void connect(const tcp::resolver::results_type &endpoints);
     virtual void handshake();
+    void keep_alive();
     void read_header();
     void read_some();
     void write() override;
     void close() override;
 
-protected:
+    Client &client_;
     StreamT stream_;
     Protocol protocol_;
     std::string host_;
@@ -91,6 +91,7 @@ public:
             client, Protocol::https_verify_none, host, port,
             client.ssl_context_) {}
 
+protected:
     void resolve() override;
     void handshake() override;
 };
@@ -117,10 +118,9 @@ void Client::request(
         if (list.empty()) {
             connections_.erase(iter);
         }
-        connection->attach(
-            std::move(request),
-            std::move(options.progress_callback),
-            std::move(callback));
+        connection->start({std::move(request),
+                           std::move(options.progress_callback),
+                           std::move(callback)});
         connection->connections_iter() = std::nullopt;
         connection->write();
     } else {
@@ -133,10 +133,9 @@ void Client::request(
             connection = new HttpsVerifyNoneConnection(*this, host, port);
             break;
         }
-        connection->attach(
-            std::move(request),
-            std::move(options.progress_callback),
-            std::move(callback));
+        connection->start({std::move(request),
+                           std::move(options.progress_callback),
+                           std::move(callback)});
         connection->timer_handle() = timer_.schedule([this, connection]() {
             connection->timer_handle() = timer_.null_handle();
             connection->close();
@@ -145,29 +144,16 @@ void Client::request(
     }
 }
 
-void Client::Connection::attach(
-    Request &&request,
-    std::function<void(ResponseParser &)> &&progress_callback,
-    std::function<void(std::error_code, Response)> &&callback) {
-    request_ = std::move(request);
-    progress_callback_ = std::move(progress_callback);
-    callback_ = std::move(callback);
-}
-
-void Client::Connection::keep_alive() {
-    if (timer_handle_ != client_.timer_.null_handle()) {
-        client_.timer_.update(timer_handle_);
-    }
+void Client::Connection::start(RequestState request_state) {
+    request_state_ = std::move(request_state);
 }
 
 void Client::Connection::finish(
     std::error_code ec, Response response) {
-    if (callback_) {
-        callback_(ec, std::move(response));
+    if (request_state_.callback) {
+        request_state_.callback(ec, std::move(response));
     }
-    request_ = {};
-    progress_callback_ = {};
-    callback_ = {};
+    request_state_ = {};
 }
 
 template <typename StreamT>
@@ -208,13 +194,20 @@ void Client::ConnectionImpl<StreamT>::handshake() {
 }
 
 template <typename StreamT>
+void Client::ConnectionImpl<StreamT>::keep_alive() {
+    if (timer_handle_ != client_.timer_.null_handle()) {
+        client_.timer_.update(timer_handle_);
+    }
+}
+
+template <typename StreamT>
 void Client::ConnectionImpl<StreamT>::read_header() {
     response_parser_.emplace();
     async_read_header(
         stream_, buffer_, *response_parser_,
         [this, _ = boost::intrusive_ptr<ConnectionImpl<StreamT>>(this)](
             std::error_code ec, size_t) {
-            if (!callback_) {
+            if (!request_state_.callback) {
                 // Received unexpected header.
                 close();
                 return;
@@ -241,8 +234,8 @@ void Client::ConnectionImpl<StreamT>::read_some() {
                 return;
             }
             if (!response_parser_->is_done()) {
-                if (progress_callback_) {
-                    progress_callback_(*response_parser_);
+                if (request_state_.progress_callback) {
+                    request_state_.progress_callback(*response_parser_);
                 }
                 keep_alive();
                 read_some();
@@ -263,7 +256,7 @@ template <typename StreamT>
 void Client::ConnectionImpl<StreamT>::write() {
     keep_alive();
     async_write(
-        stream_, request_,
+        stream_, request_state_.request,
         [this, _ = boost::intrusive_ptr<ConnectionImpl<StreamT>>(this)](
             std::error_code ec, size_t) {
             if (ec) {

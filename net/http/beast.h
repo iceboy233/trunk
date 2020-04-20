@@ -10,14 +10,11 @@ namespace http {
 using boost::beast::http::field;
 using boost::beast::http::status;
 using boost::beast::http::verb;
-using Request = boost::beast::http::request<
-    boost::beast::http::vector_body<uint8_t>>;
-using RequestParser = boost::beast::http::parser<
-    true, boost::beast::http::vector_body<uint8_t>>;
-using Response = boost::beast::http::response<
-    boost::beast::http::vector_body<uint8_t>>;
-using ResponseParser = boost::beast::http::parser<
-    false, boost::beast::http::vector_body<uint8_t>>;
+using Body = boost::beast::http::vector_body<uint8_t>;
+using Request = boost::beast::http::request<Body>;
+using RequestParser = boost::beast::http::request_parser<Body>;
+using Response = boost::beast::http::response<Body>;
+using ResponseParser = boost::beast::http::response_parser<Body>;
 
 }  // namespace http
 }  // namespace net
