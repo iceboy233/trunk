@@ -2,7 +2,6 @@
 #define _NET_ASIO_H
 
 #include <boost/asio.hpp>
-#include <boost/asio/steady_timer.hpp>
 
 namespace net {
 
