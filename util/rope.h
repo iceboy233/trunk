@@ -20,7 +20,7 @@ private:
         std::unique_ptr<Rep> lchild;
         std::unique_ptr<Rep> rchild;
         size_t lsize = 0;
-        size_t size = 0;
+        uint32_t size = 0;
         uint32_t priority;
         char buffer[buffer_size];
     };
