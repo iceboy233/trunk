@@ -68,6 +68,22 @@ cc_test(
 )
 
 cc_library(
+    name = "rope",
+    srcs = ["rope.cc"],
+    hdrs = ["rope.h"],
+    deps = ["@com_google_absl//absl/random"],
+)
+
+cc_test(
+    name = "rope_test",
+    srcs = ["rope_test.cc"],
+    deps = [
+        ":rope",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "utf",
     srcs = ["utf.cc"],
     hdrs = ["utf.h"],
