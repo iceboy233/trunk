@@ -84,6 +84,20 @@ cc_test(
 )
 
 cc_library(
+    name = "pod",
+    hdrs = ["pod.h"],
+)
+
+cc_test(
+    name = "pod_test",
+    srcs = ["pod_test.cc"],
+    deps = [
+        ":pod",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "utf",
     srcs = ["utf.cc"],
     hdrs = ["utf.h"],
