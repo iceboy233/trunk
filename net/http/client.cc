@@ -59,7 +59,7 @@ protected:
           host_(host),
           port_(port) {}
 
-    void resolve();
+    void resolve() override;
     void connect(const tcp::resolver::results_type &endpoints);
     virtual void handshake();
     void keep_alive();
