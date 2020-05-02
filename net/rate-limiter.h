@@ -14,7 +14,7 @@ namespace net {
 class RateLimiter {
 public:
     RateLimiter(
-        executor &executor,
+        const executor &executor,
         uint64_t rate,
         uint64_t capacity,
         uint64_t initial_size);
