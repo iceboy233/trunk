@@ -65,6 +65,13 @@ cc_test(
 )
 
 cc_library(
+    name = "rate-limiter",
+    srcs = ["rate-limiter.cc"],
+    hdrs = ["rate-limiter.h"],
+    deps = [":asio"],
+)
+
+cc_library(
     name = "timer-list",
     hdrs = ["timer-list.h"],
     deps = [":asio"],
