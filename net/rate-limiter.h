@@ -31,7 +31,6 @@ private:
         std::function<void()> callback;
     };
 
-    executor executor_;
     steady_timer timer_;
     const uint64_t rate_;
     const uint64_t capacity_;

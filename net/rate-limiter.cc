@@ -9,8 +9,7 @@ RateLimiter::RateLimiter(
     uint64_t rate,
     uint64_t capacity,
     uint64_t initial_size)
-    : executor_(executor),
-      timer_(executor_),
+    : timer_(executor),
       rate_(rate),
       capacity_(capacity),
       size_(initial_size),
