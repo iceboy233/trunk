@@ -36,7 +36,6 @@ private:
 
     void receive();
 
-    executor executor_;
     Options options_;
     icmp::socket socket_;
     TimerList timer_;

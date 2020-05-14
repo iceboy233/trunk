@@ -71,11 +71,10 @@ private:
 };
 
 IcmpClient::IcmpClient(const executor &executor, const Options &options)
-    : executor_(executor),
-      options_(options),
+    : options_(options),
       // TODO(iceboy): Support IPv6.
-      socket_(executor_, {icmp::v4(), 0}),
-      timer_(executor_, options_.timeout),
+      socket_(executor, {icmp::v4(), 0}),
+      timer_(executor, options_.timeout),
       identifier_(static_cast<uint16_t>(boost::this_process::get_id())),
       receive_buffer_(
           std::make_unique<uint8_t[]>(options_.receive_buffer_size)) {
