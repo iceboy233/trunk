@@ -19,24 +19,24 @@ namespace net {
 namespace rpc {
 
 class Server::PingHandler : public Handler {
-private:
+public:
     void handle(
         std::vector<uint8_t> request,
         const security::Key &key,
-        std::function<void(std::vector<uint8_t>)> callback) override;
+        std::function<void(std::vector<uint8_t>)> callback) final;
 };
 
 class Server::ListHandler : public FlatbuffersHandler<
-    fbs::ListRequest, fbs::ListResponse> {
+    ListHandler, fbs::ListRequest, fbs::ListResponse> {
 public:
     ListHandler(const Server &server) : server_(server) {}
 
-private:
     void handle(
-        fbs::ListRequestT request,
-        const security::Key &key,
-        std::function<void(fbs::ListResponseT)> callback) override;
+        const fbs::ListRequestT &,
+        const security::Key &,
+        std::function<void(fbs::ListResponseT)> callback);
 
+private:
     const Server &server_;
 };
 
@@ -139,14 +139,14 @@ void Server::dispatch() {
 
 void Server::PingHandler::handle(
     std::vector<uint8_t> request,
-    const security::Key &key,
+    const security::Key &,
     std::function<void(std::vector<uint8_t>)> callback) {
     callback(std::move(request));
 }
 
 void Server::ListHandler::handle(
-    fbs::ListRequestT request,
-    const security::Key &key,
+    const fbs::ListRequestT &,
+    const security::Key &,
     std::function<void(fbs::ListResponseT)> callback) {
     fbs::ListResponseT response;
     for (const auto &pair : server_.handlers_) {

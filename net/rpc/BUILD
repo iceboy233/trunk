@@ -24,6 +24,7 @@ cc_library(
     hdrs = ["flatbuffers-handler.h"],
     deps = [
         ":handler",
+        "//security:key",
         "//util:flatbuffers",
     ],
 )

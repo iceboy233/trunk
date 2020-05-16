@@ -3,22 +3,17 @@
 
 #include <cstdint>
 #include <functional>
-#include <memory>
+#include <utility>
 #include <vector>
 #include "net/rpc/handler.h"
+#include "security/key.h"
 #include "util/flatbuffers.h"
 
 namespace net {
 namespace rpc {
 
-template <typename RequestT, typename ResponseT>
+template <typename DerivedT, typename RequestT, typename ResponseT>
 class FlatbuffersHandler : public Handler {
-protected:
-    virtual void handle(
-        typename RequestT::NativeTableType request,
-        const security::Key &key,
-        std::function<void(typename ResponseT::NativeTableType)> callback) = 0;
-
 private:
     void handle(
         std::vector<uint8_t> request,
@@ -26,8 +21,8 @@ private:
         std::function<void(std::vector<uint8_t>)> callback) final;
 };
 
-template <typename RequestT, typename ResponseT>
-void FlatbuffersHandler<RequestT, ResponseT>::handle(
+template <typename DerivedT, typename RequestT, typename ResponseT>
+void FlatbuffersHandler<DerivedT, RequestT, ResponseT>::handle(
     std::vector<uint8_t> request,
     const security::Key &key,
     std::function<void(std::vector<uint8_t>)> callback) {
@@ -35,7 +30,7 @@ void FlatbuffersHandler<RequestT, ResponseT>::handle(
     if (!util::verify_and_unpack<RequestT>(request, request_object)) {
         return;
     }
-    handle(
+    static_cast<DerivedT *>(this)->handle(
         std::move(request_object),
         key,
         [callback = std::move(callback)](
