@@ -1,11 +1,9 @@
 #ifndef _NET_RPC_SERVER_H
 #define _NET_RPC_SERVER_H
 
-#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
-#include <vector>
 #include "absl/container/flat_hash_map.h"
 #include "absl/types/span.h"
 #include "net/asio.h"
@@ -33,22 +31,15 @@ public:
     Server(const Server &) = delete;
     Server &operator=(const Server &) = delete;
 
-    using HandlerFunc = std::function<void(
-        std::vector<uint8_t> request,
-        const security::Key &key,
-        std::function<void(std::vector<uint8_t>)> callback)>;
-
-    void handle(std::string_view name, HandlerFunc handler);
-
-    // DEPRECATED: Use the overload with HandlerFunc.
     void handle(std::string_view name, std::unique_ptr<Handler> handler);
-
     void add_key(const security::Key &key);
     void start() { receive(); }
 
     udp::endpoint endpoint() const { return socket_.local_endpoint(); }
 
 private:
+    class PingHandler;
+    class ListHandler;
     class Operation;
 
     void receive();
@@ -57,7 +48,7 @@ private:
     executor executor_;
     Options options_;
     udp::socket socket_;
-    absl::flat_hash_map<std::string, HandlerFunc> handlers_;
+    absl::flat_hash_map<std::string, std::unique_ptr<Handler>> handlers_;
     security::Keystore keystore_;
     absl::flat_hash_map<OperationKey, Operation *> operations_;
     std::unique_ptr<uint8_t[]> receive_buffer_;

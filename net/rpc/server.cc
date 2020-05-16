@@ -10,13 +10,35 @@
 #include <boost/icl/interval_set.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
-#include "net/rpc/flatbuffers-handle.h"
+#include "net/rpc/flatbuffers-handler.h"
 #include "net/rpc/flatbuffers/list_generated.h"
 #include "net/rpc/wire-structs.h"
 #include "security/keys/zero.key.h"
 
 namespace net {
 namespace rpc {
+
+class Server::PingHandler : public Handler {
+private:
+    void handle(
+        std::vector<uint8_t> request,
+        const security::Key &key,
+        std::function<void(std::vector<uint8_t>)> callback) override;
+};
+
+class Server::ListHandler : public FlatbuffersHandler<
+    fbs::ListRequest, fbs::ListResponse> {
+public:
+    ListHandler(const Server &server) : server_(server) {}
+
+private:
+    void handle(
+        fbs::ListRequestT request,
+        const security::Key &key,
+        std::function<void(fbs::ListResponseT)> callback) override;
+
+    const Server &server_;
+};
 
 class Server::Operation : public boost::intrusive_ref_counter<
     Operation, boost::thread_unsafe_counter> {
@@ -63,38 +85,13 @@ Server::Server(
       socket_(executor_, endpoint),
       receive_buffer_(
           std::make_unique<uint8_t[]>(options_.receive_buffer_size)) {
-    handle("ping", [](
-        std::vector<uint8_t> request,
-        const security::Key &,
-        const auto &callback) {
-        callback(std::move(request));
-    });
-    flatbuffers_handle<fbs::ListRequest, fbs::ListResponse>(
-        *this, "list", [this](
-            const fbs::ListRequestT &,
-            const security::Key &,
-            const auto &callback) {
-            fbs::ListResponseT response;
-            for (const auto &pair : handlers_) {
-                response.methods.push_back(pair.first);
-            }
-            std::sort(response.methods.begin(), response.methods.end());
-            callback(std::move(response));
-        });
+    handle("ping", std::make_unique<PingHandler>());
+    handle("list", std::make_unique<ListHandler>(*this));
     add_key(security::keys::zero);
 }
 
-void Server::handle(std::string_view name, HandlerFunc handler) {
-    handlers_.emplace(name, std::move(handler));
-}
-
 void Server::handle(std::string_view name, std::unique_ptr<Handler> handler) {
-    handle(name, [handler = std::shared_ptr<Handler>(std::move(handler))](
-        std::vector<uint8_t> request,
-        const security::Key &key,
-        std::function<void(std::vector<uint8_t>)> callback) {
-        handler->handle(std::move(request), key, std::move(callback));
-    });
+    handlers_.emplace(name, std::move(handler));
 }
 
 void Server::add_key(const security::Key &key) {
@@ -138,6 +135,25 @@ void Server::dispatch() {
             request_header->request_id))->unpack();
     }
     receive();
+}
+
+void Server::PingHandler::handle(
+    std::vector<uint8_t> request,
+    const security::Key &key,
+    std::function<void(std::vector<uint8_t>)> callback) {
+    callback(std::move(request));
+}
+
+void Server::ListHandler::handle(
+    fbs::ListRequestT request,
+    const security::Key &key,
+    std::function<void(fbs::ListResponseT)> callback) {
+    fbs::ListResponseT response;
+    for (const auto &pair : server_.handlers_) {
+        response.methods.push_back(pair.first);
+    }
+    std::sort(response.methods.begin(), response.methods.end());
+    callback(std::move(response));
 }
 
 Server::Operation::Operation(
@@ -242,7 +258,7 @@ void Server::Operation::handle() {
         return;
     }
     request_.resize(request_end - &request_[0]);
-    handler_iter->second(
+    handler_iter->second->handle(
         std::move(request_),
         *key_,
         [this, _ = boost::intrusive_ptr<Operation>(this)](

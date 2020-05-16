@@ -20,13 +20,6 @@ cc_library(
 )
 
 cc_library(
-    name = "flatbuffers-handle",
-    hdrs = ["flatbuffers-handle.h"],
-    deps = ["//util:flatbuffers"],
-)
-
-# DEPRECATED: Use flatbuffers-handle.
-cc_library(
     name = "flatbuffers-handler",
     hdrs = ["flatbuffers-handler.h"],
     deps = [
@@ -45,7 +38,6 @@ cc_library(
     ],
 )
 
-# DEPRECATED: Use handle with function.
 cc_library(
     name = "handler",
     hdrs = ["handler.h"],
@@ -77,8 +69,7 @@ cc_library(
     srcs = ["server.cc"],
     hdrs = ["server.h"],
     deps = [
-        ":flatbuffers-handle",
-        ":handler",
+        ":flatbuffers-handler",
         ":operation-key",
         ":wire-structs",
         "//net:asio",
