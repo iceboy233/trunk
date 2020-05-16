@@ -10,7 +10,6 @@
 #include <boost/icl/interval_set.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
-#include <boost/smart_ptr/local_shared_ptr.hpp>
 #include "net/rpc/flatbuffers-handle.h"
 #include "net/rpc/flatbuffers/list_generated.h"
 #include "net/rpc/wire-structs.h"
@@ -90,8 +89,7 @@ void Server::handle(std::string_view name, HandlerFunc handler) {
 }
 
 void Server::handle(std::string_view name, std::unique_ptr<Handler> handler) {
-    handle(name, [
-        handler = boost::local_shared_ptr<Handler>(std::move(handler))](
+    handle(name, [handler = std::shared_ptr<Handler>(std::move(handler))](
         std::vector<uint8_t> request,
         const security::Key &key,
         std::function<void(std::vector<uint8_t>)> callback) {
