@@ -9,13 +9,16 @@ namespace base {
 namespace detail {
 namespace {
 
-// TODO(iceboy): Remove heap allocation.
-auto *setters = new std::vector<std::function<void()>>;
+std::vector<std::function<void()>> &setters() {
+    // TODO(iceboy): Remove heap allocation.
+    static auto *setters = new std::vector<std::function<void()>>;
+    return *setters;
+}
 
 }  // namespace
 
 void register_flag(std::function<void()> setter) {
-    setters->push_back(std::move(setter));
+    setters().push_back(std::move(setter));
 }
 
 }  // namespace detail
@@ -23,7 +26,7 @@ void register_flag(std::function<void()> setter) {
 void parse_flags(int argc, char *argv[]) {
     absl::SetProgramUsageMessage("");
     absl::ParseCommandLine(argc, argv);
-    for (const auto &setter : *detail::setters) {
+    for (const auto &setter : detail::setters()) {
         setter();
     }
 }
