@@ -10,6 +10,7 @@
 #include <boost/icl/interval_set.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
+#include "base/logging.h"
 #include "net/rpc/flatbuffers-handler.h"
 #include "net/rpc/flatbuffers/list_generated.h"
 #include "net/rpc/wire-structs.h"
@@ -104,10 +105,11 @@ void Server::receive() {
         receive_endpoint_,
         [this](std::error_code ec, size_t size) {
             if (ec) {
-                if (ec == std::errc::connection_refused ||
-                    ec == std::errc::connection_reset) {
-                    receive();
+                LOG(error) << "async_receive_from failed: " << ec;
+                if (ec == std::errc::operation_canceled) {
+                    return;
                 }
+                receive();
                 return;
             }
             receive_size_ = size;

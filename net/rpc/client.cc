@@ -82,10 +82,10 @@ void Client::receive(Channel &channel) {
         buffer(channel.receive_buffer.get(), options_.receive_buffer_size),
         [this, &channel](std::error_code ec, size_t size) {
             if (ec) {
-                if (ec == std::errc::connection_refused ||
-                    ec == std::errc::connection_reset) {
-                    receive(channel);
+                if (ec == std::errc::operation_canceled) {
+                    return;
                 }
+                receive(channel);
                 return;
             }
             channel.receive_size = size;

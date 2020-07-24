@@ -106,10 +106,10 @@ void IcmpClient::receive() {
         buffer(receive_buffer_.get(), options_.receive_buffer_size),
         [this](std::error_code ec, size_t size) {
             if (ec) {
-                if (ec == std::errc::connection_refused ||
-                    ec == std::errc::connection_reset) {
-                    receive();
+                if (ec == std::errc::operation_canceled) {
+                    return;
                 }
+                receive();
                 return;
             }
             if (size < 20 + sizeof(IcmpHeader)) {

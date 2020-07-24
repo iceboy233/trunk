@@ -73,6 +73,7 @@ cc_library(
         ":flatbuffers-handler",
         ":operation-key",
         ":wire-structs",
+        "//base:logging",
         "//net:asio",
         "//net/rpc/flatbuffers:list",
         "//security:key",
