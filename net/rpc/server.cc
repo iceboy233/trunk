@@ -118,7 +118,7 @@ void Server::receive() {
 }
 
 void Server::dispatch() {
-    if (receive_size_ < sizeof(wire::response::Header)) {
+    if (receive_size_ < sizeof(wire::request::Header)) {
         receive();
         return;
     }
