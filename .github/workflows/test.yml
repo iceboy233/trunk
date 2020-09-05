@@ -1,21 +1,23 @@
 name: test
-on: [push]
+
+on: push
+
 jobs:
   build:
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: mount bazel cache
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         key: bazel
-        path: "/home/runner/.cache/bazel"
+        path: ~/.cache/bazel
 
     - name: install bazelisk
       run: |
         mkdir -p "${GITHUB_WORKSPACE}/bin/"
-        curl -Lo "${GITHUB_WORKSPACE}/bin/bazel" "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64"
+        curl -fLo "${GITHUB_WORKSPACE}/bin/bazel" "https://github.com/bazelbuild/bazelisk/releases/download/v1.6.1/bazelisk-linux-amd64"
         chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
 
     - name: test
