@@ -16,6 +16,25 @@ cc_test(
 )
 
 cc_library(
+    name = "asio-flags",
+    srcs = ["asio-flags.cc"],
+    hdrs = ["asio-flags.h"],
+    deps = [
+        "@org_boost_boost//:asio",
+        "@org_boost_boost//:system",
+    ],
+)
+
+cc_test(
+    name = "asio-flags_test",
+    srcs = ["asio-flags_test.cc"],
+    deps = [
+        ":asio-flags",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "blocking-result",
     hdrs = ["blocking-result.h"],
     deps = [":asio"],
