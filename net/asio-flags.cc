@@ -12,7 +12,7 @@ bool AbslParseFlag(std::string_view in, address *out, std::string *error) {
         return true;
     }
     boost::system::error_code ec;
-    *out = make_address(std::string(in), ec);
+    *out = make_address(in, ec);
     if (ec) {
         *error = ec.message();
         return false;
@@ -26,7 +26,7 @@ bool AbslParseFlag(std::string_view in, address_v4 *out, std::string *error) {
         return true;
     }
     boost::system::error_code ec;
-    *out = make_address_v4(std::string(in), ec);
+    *out = make_address_v4(in, ec);
     if (ec) {
         *error = ec.message();
         return false;
@@ -40,7 +40,7 @@ bool AbslParseFlag(std::string_view in, address_v6 *out, std::string *error) {
         return true;
     }
     boost::system::error_code ec;
-    *out = make_address_v6(std::string(in), ec);
+    *out = make_address_v6(in, ec);
     if (ec) {
         *error = ec.message();
         return false;
