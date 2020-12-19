@@ -27,7 +27,7 @@ public:
             boost::asio::ssl::context_base::sslv23_client;
     };
 
-    Client(const executor &executor, const Options &options);
+    Client(const any_io_executor &executor, const Options &options);
     Client(const Client &) = delete;
     Client &operator=(const Client &) = delete;
 
@@ -73,7 +73,7 @@ private:
     class HttpConnection;
     class HttpsVerifyNoneConnection;
 
-    executor executor_;
+    any_io_executor executor_;
     Options options_;
     tcp::resolver tcp_resolver_;
     boost::asio::ssl::context ssl_context_;

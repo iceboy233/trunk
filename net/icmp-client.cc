@@ -70,7 +70,7 @@ private:
     IcmpHeader request_header_;
 };
 
-IcmpClient::IcmpClient(const executor &executor, const Options &options)
+IcmpClient::IcmpClient(const any_io_executor &executor, const Options &options)
     : options_(options),
       // TODO(iceboy): Support IPv6.
       socket_(executor, {icmp::v4(), 0}),

@@ -16,7 +16,7 @@ namespace net {
 template <
     typename ClockT,
     typename WaitTraitsT = wait_traits<ClockT>,
-    typename ExecutorT = executor>
+    typename ExecutorT = any_io_executor>
 class BasicTimerList {
 public:
     using Timer = basic_waitable_timer<ClockT, WaitTraitsT, ExecutorT>;

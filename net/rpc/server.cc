@@ -78,7 +78,7 @@ private:
 };
 
 Server::Server(
-    const executor &executor,
+    const any_io_executor &executor,
     const udp::endpoint &endpoint,
     const Options &options)
     : executor_(executor),

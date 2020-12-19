@@ -45,7 +45,7 @@ private:
     size_t response_size_ = std::numeric_limits<size_t>::max();
 };
 
-Client::Client(const executor &executor, const Options &options)
+Client::Client(const any_io_executor &executor, const Options &options)
     : executor_(executor),
       options_(options) {
     channels_.reserve(options_.num_channels);

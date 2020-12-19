@@ -97,7 +97,7 @@ protected:
     void handshake() override;
 };
 
-Client::Client(const executor &executor, const Options &options)
+Client::Client(const any_io_executor &executor, const Options &options)
     : executor_(executor),
       options_(options),
       tcp_resolver_(executor_),

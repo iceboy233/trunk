@@ -5,6 +5,7 @@
 
 namespace net {
 
+using boost::asio::any_io_executor;
 using boost::asio::async_connect;
 using boost::asio::async_read;
 using boost::asio::async_read_until;
@@ -19,7 +20,6 @@ using boost::asio::connect;
 using boost::asio::const_buffer;
 using boost::asio::dispatch;
 using boost::asio::defer;
-using boost::asio::executor;
 using boost::asio::executor_work_guard;
 using boost::asio::io_context;
 using boost::asio::make_work_guard;

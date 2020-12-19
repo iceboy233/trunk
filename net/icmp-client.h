@@ -22,7 +22,7 @@ public:
         std::chrono::nanoseconds timeout = std::chrono::seconds(2);
     };
 
-    IcmpClient(const executor &executor, const Options &options);
+    IcmpClient(const any_io_executor &executor, const Options &options);
     IcmpClient(const IcmpClient &) = delete;
     IcmpClient &operator=(const IcmpClient &) = delete;
 

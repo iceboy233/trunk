@@ -29,7 +29,7 @@ public:
         size_t receive_buffer_size = 2048;
     };
 
-    Client(const executor &executor, const Options &options);
+    Client(const any_io_executor &executor, const Options &options);
     Client(const Client &) = delete;
     Client &operator=(const Client &) = delete;
 
@@ -58,7 +58,7 @@ private:
     void receive(Channel &channel);
     void dispatch(Channel &channel);
 
-    executor executor_;
+    any_io_executor executor_;
     Options options_;
     std::vector<Channel> channels_;
     std::vector<Channel>::iterator channels_iter_;

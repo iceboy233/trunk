@@ -25,7 +25,7 @@ public:
     };
 
     Server(
-        const executor &executor,
+        const any_io_executor &executor,
         const udp::endpoint &endpoint,
         const Options &options);
     Server(const Server &) = delete;
@@ -45,7 +45,7 @@ private:
     void receive();
     void dispatch();
 
-    executor executor_;
+    any_io_executor executor_;
     Options options_;
     udp::socket socket_;
     absl::flat_hash_map<std::string, std::unique_ptr<Handler>> handlers_;
