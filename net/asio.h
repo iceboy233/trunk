@@ -20,17 +20,17 @@ using boost::asio::connect;
 using boost::asio::const_buffer;
 using boost::asio::dispatch;
 using boost::asio::defer;
-using boost::asio::executor_work_guard;
 using boost::asio::io_context;
-using boost::asio::make_work_guard;
 using boost::asio::mutable_buffer;
 using boost::asio::post;
+using boost::asio::prefer;
 using boost::asio::read;
+using boost::asio::require;
 using boost::asio::signal_set;
 using boost::asio::socket_base;
+using boost::asio::static_thread_pool;
 using boost::asio::steady_timer;
 using boost::asio::streambuf;
-using boost::asio::thread_pool;
 using boost::asio::transfer_all;
 using boost::asio::transfer_at_least;
 using boost::asio::transfer_exactly;
@@ -45,6 +45,8 @@ using boost::asio::ip::make_address_v4;
 using boost::asio::ip::make_address_v6;
 using boost::asio::ip::tcp;
 using boost::asio::ip::udp;
+
+namespace execution = boost::asio::execution;
 
 }  // namespace net
 
