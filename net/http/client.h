@@ -2,6 +2,7 @@
 #define _NET_HTTP_CLIENT_H
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <list>
@@ -22,6 +23,7 @@ namespace http {
 class Client {
 public:
     struct Options {
+        size_t read_buffer_size = 8192;
         std::chrono::nanoseconds connection_timeout = std::chrono::seconds(60);
         boost::asio::ssl::context_base::method ssl_method =
             boost::asio::ssl::context_base::sslv23_client;

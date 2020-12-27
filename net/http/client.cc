@@ -73,7 +73,7 @@ protected:
     Protocol protocol_;
     std::string host_;
     uint16_t port_;
-    boost::beast::flat_buffer buffer_;
+    boost::beast::flat_buffer read_buffer_;
     std::optional<ResponseParser> response_parser_;
 };
 
@@ -203,9 +203,10 @@ void Client::ConnectionImpl<StreamT>::keep_alive() {
 
 template <typename StreamT>
 void Client::ConnectionImpl<StreamT>::read_header() {
+    read_buffer_.reserve(client_.options_.read_buffer_size);
     response_parser_.emplace();
     async_read_header(
-        stream_, buffer_, *response_parser_,
+        stream_, read_buffer_, *response_parser_,
         [this, _ = boost::intrusive_ptr<ConnectionImpl<StreamT>>(this)](
             std::error_code ec, size_t) {
             if (!request_state_.callback) {
@@ -226,7 +227,7 @@ void Client::ConnectionImpl<StreamT>::read_header() {
 template <typename StreamT>
 void Client::ConnectionImpl<StreamT>::read_some() {
     async_read_some(
-        stream_, buffer_, *response_parser_,
+        stream_, read_buffer_, *response_parser_,
         [this, _ = boost::intrusive_ptr<ConnectionImpl<StreamT>>(this)](
             std::error_code ec, size_t) {
             if (ec) {
@@ -242,7 +243,7 @@ void Client::ConnectionImpl<StreamT>::read_some() {
                 read_some();
                 return;
             }
-            buffer_ = {};
+            read_buffer_.clear();
             finish({}, response_parser_->release());
             std::list<Connection *> &list =
                 client_.connections_[{protocol_, host_, port_}];
