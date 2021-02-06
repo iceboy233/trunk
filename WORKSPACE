@@ -29,7 +29,7 @@ git_repository(
 git_repository(
     name = "org_boost_boost",
     commit = "13413ef10592ca33bec6bcadf67f62ced07a1b7f",
-    remote = "https://github.com/iceb0y/boost.git",
+    remote = "https://github.com/iceboy233/boost.git",
 )
 
 load("@org_boost_boost//:boost_deps.bzl", "boost_deps")

@@ -1,1 +1,1 @@
-[![Actions Status](https://github.com/iceb0y/trunk/workflows/test/badge.svg)](https://github.com/iceb0y/trunk/actions)
+[![Actions Status](https://github.com/iceboy233/trunk/workflows/test/badge.svg)](https://github.com/iceboy233/trunk/actions)
