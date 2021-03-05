@@ -35,6 +35,24 @@ cc_test(
 )
 
 cc_library(
+    name = "asio-hash",
+    hdrs = ["asio-hash.h"],
+    deps = ["@org_boost_boost//:asio"],
+)
+
+cc_binary(
+    name = "asio-hash_benchmark",
+    srcs = ["asio-hash_benchmark.cc"],
+    deps = [
+        ":asio",
+        ":asio-hash",
+        "@com_github_google_benchmark//:benchmark_main",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/random",
+    ],
+)
+
+cc_library(
     name = "blocking-result",
     hdrs = ["blocking-result.h"],
     deps = [":asio"],

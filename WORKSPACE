@@ -9,6 +9,12 @@ git_repository(
 )
 
 git_repository(
+    name = "com_github_google_benchmark",
+    commit = "c5b2fe9357b3862b7f99b94d7999002dcf269faf",
+    remote = "https://github.com/google/benchmark.git",
+)
+
+git_repository(
     name = "com_github_google_flatbuffers",
     commit = "6df40a2471737b27271bdd9b900ab5f3aec746c7",
     remote = "https://github.com/google/flatbuffers.git",
