@@ -4,6 +4,8 @@
 #include <functional>
 #include <list>
 #include <system_error>
+
+#include "absl/container/inlined_vector.h"
 #include "net/asio.h"
 
 namespace net {
@@ -19,16 +21,21 @@ template <
     typename ExecutorT = any_io_executor>
 class BasicTimerList {
 public:
-    using Timer = basic_waitable_timer<ClockT, WaitTraitsT, ExecutorT>;
     using Duration = typename ClockT::duration;
     using TimePoint = typename ClockT::time_point;
 
     BasicTimerList(const ExecutorT &executor, const Duration &duration);
 
+    class Timer;
+
 private:
     struct Entry;
 
 public:
+    // The handle interface is deprecated and should only be used privately.
+    // Please use the timer interface instead.
+    //
+    // TODO(iceboy): Make this section private.
     using Handle = typename std::list<Entry>::iterator;
 
     // The callback will be executed in the provided executor. After the
@@ -39,6 +46,8 @@ public:
     Handle null_handle() { return list_.end(); }
 
 private:
+    using WaitableTimer = basic_waitable_timer<ClockT, WaitTraitsT, ExecutorT>;
+
     struct Entry {
         TimePoint expiry;
         std::function<void()> callback;
@@ -47,7 +56,7 @@ private:
     void wait();
 
     Duration duration_;
-    Timer timer_;
+    WaitableTimer timer_;
     std::list<Entry> list_;
 };
 
@@ -87,14 +96,14 @@ void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::cancel(Handle handle) {
 
 template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
 void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::wait() {
-    timer_.expires_at(list_.front().expiry);
-    timer_.async_wait([this](std::error_code ec) {
+    TimePoint expiry = list_.front().expiry;
+    timer_.expires_at(expiry);
+    timer_.async_wait([this, expiry](std::error_code ec) {
         if (ec) {
             // TODO(iceboy): Error handling.
             return;
         }
-        TimePoint now = ClockT::now();
-        while (!list_.empty() && list_.front().expiry <= now) {
+        while (!list_.empty() && list_.front().expiry <= expiry) {
             list_.front().callback();
             list_.pop_front();
         }
@@ -102,6 +111,72 @@ void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::wait() {
             wait();
         }
     });
+}
+
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+class BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer {
+public:
+    Timer(BasicTimerList<ClockT, WaitTraitsT, ExecutorT> &list);
+    ~Timer() { cancel(); }
+
+    void set();
+    void wait(std::function<void(bool cancelled)> callback);
+    void cancel();
+
+private:
+    BasicTimerList<ClockT, WaitTraitsT, ExecutorT> &list_;
+    BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Handle handle_;
+    absl::InlinedVector<std::function<void(bool cancelled)>, 1> callbacks_;
+};
+
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::Timer(
+    BasicTimerList<ClockT, WaitTraitsT, ExecutorT> &list)
+    : list_(list),
+      handle_(list_.null_handle()) {}
+
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::set() {
+    auto callbacks = std::move(callbacks_);
+    callbacks_.clear();
+    for (const auto &callback : callbacks) {
+        callback(true);
+    }
+    if (handle_ != list_.null_handle()) {
+        list_.update(handle_);
+        return;
+    }
+    handle_ = list_.schedule([this]() {
+        handle_ = list_.null_handle();
+        auto callbacks = std::move(callbacks_);
+        callbacks_.clear();
+        for (const auto &callback : callbacks) {
+            callback(false);
+        }
+    });
+}
+
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::wait(
+    std::function<void(bool cancelled)> callback) {
+    if (handle_ == list_.null_handle()) {
+        callback(false);
+        return;
+    }
+    callbacks_.push_back(std::move(callback));
+}
+
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::cancel() {
+    if (handle_ != list_.null_handle()) {
+        list_.cancel(handle_);
+        handle_ = list_.null_handle();
+    }
+    auto callbacks = std::move(callbacks_);
+    callbacks_.clear();
+    for (const auto &callback : callbacks) {
+        callback(true);
+    }
 }
 
 }  // namespace net
