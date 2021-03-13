@@ -4,7 +4,7 @@ on: push
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
@@ -17,9 +17,9 @@ jobs:
     - name: install bazelisk
       run: |
         mkdir -p "${GITHUB_WORKSPACE}/bin/"
-        curl -fLo "${GITHUB_WORKSPACE}/bin/bazel" "https://github.com/bazelbuild/bazelisk/releases/download/v1.6.1/bazelisk-linux-amd64"
+        curl -fLo "${GITHUB_WORKSPACE}/bin/bazel" "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.5/bazelisk-linux-amd64"
         chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
 
     - name: test
       run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" test --cxxopt=-std=c++17 //...
+        "${GITHUB_WORKSPACE}/bin/bazel" test --config=linux //...
