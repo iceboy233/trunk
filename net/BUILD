@@ -111,10 +111,7 @@ cc_library(
 cc_library(
     name = "timer-list",
     hdrs = ["timer-list.h"],
-    deps = [
-        ":asio",
-        "@com_google_absl//absl/container:inlined_vector",
-    ],
+    deps = [":asio"],
 )
 
 cc_test(

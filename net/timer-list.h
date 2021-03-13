@@ -4,8 +4,8 @@
 #include <functional>
 #include <list>
 #include <system_error>
+#include <utility>
 
-#include "absl/container/inlined_vector.h"
 #include "net/asio.h"
 
 namespace net {
@@ -116,67 +116,43 @@ void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::wait() {
 template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
 class BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer {
 public:
-    Timer(BasicTimerList<ClockT, WaitTraitsT, ExecutorT> &list);
-    ~Timer() { cancel(); }
+    Timer(
+        BasicTimerList<ClockT, WaitTraitsT, ExecutorT> &list,
+        std::function<void()> callback);
+    ~Timer();
 
-    void set();
-    void wait(std::function<void(bool cancelled)> callback);
-    void cancel();
+    void update();
 
 private:
     BasicTimerList<ClockT, WaitTraitsT, ExecutorT> &list_;
+    std::function<void()> callback_;
     BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Handle handle_;
-    absl::InlinedVector<std::function<void(bool cancelled)>, 1> callbacks_;
 };
 
 template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
 BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::Timer(
-    BasicTimerList<ClockT, WaitTraitsT, ExecutorT> &list)
+    BasicTimerList<ClockT, WaitTraitsT, ExecutorT> &list,
+    std::function<void()> callback)
     : list_(list),
-      handle_(list_.null_handle()) {}
+      callback_(std::move(callback)),
+      handle_(list_.schedule([this]() {
+          handle_ = list_.null_handle();
+          callback_();
+      })) {}
 
 template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
-void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::set() {
-    auto callbacks = std::move(callbacks_);
-    callbacks_.clear();
-    for (const auto &callback : callbacks) {
-        callback(true);
-    }
-    if (handle_ != list_.null_handle()) {
-        list_.update(handle_);
-        return;
-    }
-    handle_ = list_.schedule([this]() {
-        handle_ = list_.null_handle();
-        auto callbacks = std::move(callbacks_);
-        callbacks_.clear();
-        for (const auto &callback : callbacks) {
-            callback(false);
-        }
-    });
-}
-
-template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
-void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::wait(
-    std::function<void(bool cancelled)> callback) {
-    if (handle_ == list_.null_handle()) {
-        callback(false);
-        return;
-    }
-    callbacks_.push_back(std::move(callback));
-}
-
-template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
-void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::cancel() {
+BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::~Timer() {
     if (handle_ != list_.null_handle()) {
         list_.cancel(handle_);
-        handle_ = list_.null_handle();
     }
-    auto callbacks = std::move(callbacks_);
-    callbacks_.clear();
-    for (const auto &callback : callbacks) {
-        callback(true);
+}
+
+template <typename ClockT, typename WaitTraitsT, typename ExecutorT>
+void BasicTimerList<ClockT, WaitTraitsT, ExecutorT>::Timer::update() {
+    if (handle_ == list_.null_handle()) {
+        return;
     }
+    list_.update(handle_);
 }
 
 }  // namespace net
