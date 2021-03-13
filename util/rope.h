@@ -4,6 +4,8 @@
 #include <memory>
 #include <string_view>
 
+#include "absl/random/random.h"
+
 namespace util {
 
 // This class is not thread-safe.
@@ -25,7 +27,7 @@ private:
         char buffer[buffer_size];
     };
 
-    static std::unique_ptr<Rep> insert(
+    std::unique_ptr<Rep> insert(
         std::unique_ptr<Rep> rep, size_t index,
         const char *buffer, size_t size);
     static std::unique_ptr<Rep> erase(
@@ -39,6 +41,7 @@ private:
     static std::unique_ptr<Rep> rotate_right(std::unique_ptr<Rep> rep);
 
     std::unique_ptr<Rep> rep_;
+    absl::InsecureBitGen gen_;
 };
 
 }  // namespace util

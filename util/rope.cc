@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <utility>
-#include "absl/random/random.h"
 
 namespace util {
 
@@ -21,11 +20,8 @@ void Rope::copy(size_t index, size_t size, char *dest) const {
 std::unique_ptr<Rope::Rep> Rope::insert(
     std::unique_ptr<Rep> rep, size_t index, const char *buffer, size_t size) {
     if (!rep) {
-        // TODO(iceboy): Use shared bitgens.
-        static thread_local absl::BitGen gen;
-
         rep = std::make_unique<Rep>();
-        rep->priority = absl::Uniform<uint32_t>(gen);
+        rep->priority = absl::Uniform<uint32_t>(gen_);
     }
     if (index < rep->lsize) {
         rep->lchild = insert(std::move(rep->lchild), index, buffer, size);
