@@ -205,6 +205,7 @@ template <typename StreamT>
 void Client::ConnectionImpl<StreamT>::read_header() {
     read_buffer_.reserve(client_.options_.read_buffer_size);
     response_parser_.emplace();
+    response_parser_->body_limit(boost::none);
     async_read_header(
         stream_, read_buffer_, *response_parser_,
         [this, _ = boost::intrusive_ptr<ConnectionImpl<StreamT>>(this)](
