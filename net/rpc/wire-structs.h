@@ -1,8 +1,8 @@
 #ifndef _NET_RPC_WIRE_STRUCTS_H
 #define _NET_RPC_WIRE_STRUCTS_H
 
-#include <array>
 #include <cstdint>
+
 #include "base/packed.h"
 
 namespace net {
