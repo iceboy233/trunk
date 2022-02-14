@@ -10,6 +10,7 @@
 #include <boost/icl/interval_set.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
+
 #include "base/logging.h"
 #include "net/rpc/flatbuffers-handler.h"
 #include "net/rpc/flatbuffers/list_generated.h"
@@ -49,11 +50,13 @@ public:
         const udp::endpoint &client_endpoint,
         uint64_t key_fingerprint,
         uint64_t request_id);
-    Operation(const Operation &) = delete;
-    Operation &operator=(const Operation &) = delete;
     ~Operation();
 
+    Operation(const Operation &) = delete;
+    Operation &operator=(const Operation &) = delete;
+
     void unpack();
+    void detach() { detached_ = true; }
 
     void set_client_endpoint(const udp::endpoint &client_endpoint) {
         client_endpoint_ = client_endpoint;
@@ -75,6 +78,7 @@ private:
     size_t request_size_ = std::numeric_limits<size_t>::max();
     std::vector<uint8_t> response_;
     std::vector<std::vector<uint8_t>> response_buffers_;
+    bool detached_ = false;
 };
 
 Server::Server(
@@ -89,6 +93,12 @@ Server::Server(
     handle("ping", std::make_unique<PingHandler>());
     handle("list", std::make_unique<ListHandler>(*this));
     add_key(security::keys::zero);
+}
+
+Server::~Server() {
+    for (const auto &pair : operations_) {
+        pair.second->detach();
+    }
 }
 
 void Server::handle(std::string_view name, std::unique_ptr<Handler> handler) {
@@ -173,6 +183,9 @@ Server::Operation::Operation(
 }
 
 Server::Operation::~Operation() {
+    if (detached_) {
+        return;
+    }
     server_.operations_.erase({key_fingerprint_, request_id_});
 }
 

@@ -5,6 +5,7 @@
 #include <boost/icl/interval_set.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
+
 #include "absl/types/span.h"
 #include "util/fibonacci-sequence.h"
 
@@ -20,13 +21,15 @@ public:
         std::vector<uint8_t> request,
         const RequestOptions &options,
         std::function<void(std::error_code, std::vector<uint8_t>)> callback);
+    ~Operation();
+
     Operation(const Operation &) = delete;
     Operation &operator=(const Operation &) = delete;
-    ~Operation();
 
     void send();
     void unpack(absl::Span<uint8_t> fragment);
     void abort(std::error_code ec);
+    void detach() { detached_ = true; }
 
 private:
     Client &client_;
@@ -39,6 +42,7 @@ private:
     std::vector<std::vector<uint8_t>> request_buffers_;
     util::FibonacciSequence<int> wait_sequence_;
     bool finished_ = false;
+    bool detached_ = false;
     std::error_code result_ec_ = make_error_code(std::errc::bad_address);
     std::vector<uint8_t> response_;
     boost::icl::interval_set<size_t> response_intervals_;
@@ -59,6 +63,12 @@ Client::Client(const any_io_executor &executor, const Options &options)
     channels_iter_ = channels_.begin();
     for (Channel &channel : channels_) {
         receive(channel);
+    }
+}
+
+Client::~Client() {
+    for (const auto &pair : operations_) {
+        pair.second->detach();
     }
 }
 
@@ -157,7 +167,9 @@ Client::Operation::Operation(
 }
 
 Client::Operation::~Operation() {
-    client_.operations_.erase({options_.key.fingerprint(), request_id_});
+    if (!detached_) {
+        client_.operations_.erase({options_.key.fingerprint(), request_id_});
+    }
     if (result_ec_) {
         callback_(result_ec_, {});
         return;

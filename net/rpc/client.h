@@ -8,6 +8,7 @@
 #include <string_view>
 #include <system_error>
 #include <vector>
+
 #include "absl/container/flat_hash_map.h"
 #include "absl/random/random.h"
 #include "net/asio.h"
@@ -30,6 +31,8 @@ public:
     };
 
     Client(const any_io_executor &executor, const Options &options);
+    ~Client();
+
     Client(const Client &) = delete;
     Client &operator=(const Client &) = delete;
 

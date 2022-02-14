@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+
 #include "absl/container/flat_hash_map.h"
 #include "absl/types/span.h"
 #include "net/asio.h"
@@ -28,6 +29,8 @@ public:
         const any_io_executor &executor,
         const udp::endpoint &endpoint,
         const Options &options);
+    ~Server();
+
     Server(const Server &) = delete;
     Server &operator=(const Server &) = delete;
 
