@@ -25,6 +25,7 @@ public:
 
     // Acquires the specified size. Size must not be greater than capacity.
     void acquire(uint64_t size, std::function<void()> callback);
+    bool acquire_nowait(uint64_t size);
 
 private:
     void refill(std::chrono::steady_clock::time_point time);

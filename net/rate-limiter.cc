@@ -31,6 +31,18 @@ void RateLimiter::acquire(uint64_t size, std::function<void()> callback) {
     }
 }
 
+bool RateLimiter::acquire_nowait(uint64_t size) {
+    auto time = std::chrono::steady_clock::now();
+    size_ = std::min(capacity_, size_ + (time - update_time_));
+    update_time_ = time;
+    std::chrono::nanoseconds size_duration = to_duration(size, rate_);
+    if (size_ < size_duration) {
+        return false;
+    }
+    size_ -= size_duration;
+    return true;
+}
+
 void RateLimiter::refill(std::chrono::steady_clock::time_point time) {
     size_ = std::min(capacity_, size_ + (time - update_time_));
     update_time_ = time;
