@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <functional>
 #include <queue>
+
 #include "net/asio.h"
 
 namespace net {
@@ -18,23 +19,25 @@ public:
         uint64_t rate,
         uint64_t capacity,
         uint64_t initial_size);
+
     RateLimiter(const RateLimiter &) = delete;
     RateLimiter &operator=(const RateLimiter &) = delete;
 
+    // Acquires the specified size. Size must not be greater than capacity.
     void acquire(uint64_t size, std::function<void()> callback);
 
 private:
-    void refill();
+    void refill(std::chrono::steady_clock::time_point time);
 
     struct WaitEntry {
-        uint64_t size;
+        std::chrono::nanoseconds size;
         std::function<void()> callback;
     };
 
     steady_timer timer_;
     const uint64_t rate_;
-    const uint64_t capacity_;
-    uint64_t size_;
+    const std::chrono::nanoseconds capacity_;
+    std::chrono::nanoseconds size_;
     std::chrono::steady_clock::time_point update_time_;
     std::queue<WaitEntry> queue_;
 };

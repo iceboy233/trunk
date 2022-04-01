@@ -1,8 +1,17 @@
 #include "net/rate-limiter.h"
 
+#include <algorithm>
 #include <system_error>
+#include <utility>
 
 namespace net {
+namespace {
+
+std::chrono::nanoseconds to_duration(uint64_t size, uint64_t rate) {
+    return std::chrono::nanoseconds(std::chrono::seconds(size)) / rate;
+}
+
+}  // namespace
 
 RateLimiter::RateLimiter(
     const any_io_executor &executor,
@@ -11,27 +20,24 @@ RateLimiter::RateLimiter(
     uint64_t initial_size)
     : timer_(executor),
       rate_(rate),
-      capacity_(capacity),
-      size_(initial_size),
+      capacity_(to_duration(capacity, rate_)),
+      size_(to_duration(initial_size, rate_)),
       update_time_(std::chrono::steady_clock::now()) {}
 
 void RateLimiter::acquire(uint64_t size, std::function<void()> callback) {
-    queue_.push({size, std::move(callback)});
+    queue_.push({to_duration(size, rate_), std::move(callback)});
     if (queue_.size() == 1) {
-        refill();
+        refill(std::chrono::steady_clock::now());
     }
 }
 
-void RateLimiter::refill() {
-    auto now = std::chrono::steady_clock::now();
-    uint64_t delta = std::chrono::duration_cast<std::chrono::seconds>(
-        (now - update_time_) * rate_).count();
-    size_ = std::min(capacity_, size_ + delta);
-    update_time_ = now;
+void RateLimiter::refill(std::chrono::steady_clock::time_point time) {
+    size_ = std::min(capacity_, size_ + (time - update_time_));
+    update_time_ = time;
     while (true) {
         if (queue_.front().size > size_) {
             queue_.front().size -= size_;
-            size_ = 0;
+            size_ = std::chrono::nanoseconds::zero();
             break;
         }
         size_ -= queue_.front().size;
@@ -41,15 +47,14 @@ void RateLimiter::refill() {
             return;
         }
     }
-    timer_.expires_at(
-        now + std::chrono::nanoseconds(
-            queue_.front().size * 1000000000 / rate_));
-    timer_.async_wait([this](std::error_code ec) {
+    time += queue_.front().size;
+    timer_.expires_at(time);
+    timer_.async_wait([this, time](std::error_code ec) {
         if (ec) {
             // TODO(iceboy): error handling.
             return;
         }
-        refill();
+        refill(time);
     });
 }
 
