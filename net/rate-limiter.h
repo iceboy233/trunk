@@ -17,29 +17,27 @@ public:
     RateLimiter(
         const any_io_executor &executor,
         uint64_t rate,
-        uint64_t capacity,
-        uint64_t initial_size);
+        std::chrono::nanoseconds capacity);
 
     RateLimiter(const RateLimiter &) = delete;
     RateLimiter &operator=(const RateLimiter &) = delete;
 
-    // Acquires the specified size. Size must not be greater than capacity.
     void acquire(uint64_t size, std::function<void()> callback);
     bool acquire_nowait(uint64_t size);
 
 private:
-    void refill(std::chrono::steady_clock::time_point time);
+    void update(std::chrono::steady_clock::time_point time);
 
     struct WaitEntry {
-        std::chrono::nanoseconds size;
+        std::chrono::nanoseconds duration;
         std::function<void()> callback;
     };
 
     steady_timer timer_;
     const uint64_t rate_;
     const std::chrono::nanoseconds capacity_;
-    std::chrono::nanoseconds size_;
-    std::chrono::steady_clock::time_point update_time_;
+    std::chrono::nanoseconds duration_ = std::chrono::nanoseconds::zero();
+    std::chrono::steady_clock::time_point time_;
     std::queue<WaitEntry> queue_;
 };
 
