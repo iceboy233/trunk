@@ -2,7 +2,6 @@
 #define _IO_POSIX_FILE_H
 
 #include <fcntl.h>
-#include <system_error>
 
 #include "io/file.h"
 
@@ -13,6 +12,9 @@ public:
     PosixFile() : fd_(-1) {}
     explicit PosixFile(int fd) : fd_(fd) {}
     ~PosixFile() override { close(); }
+
+    PosixFile(const PosixFile &) = delete;
+    PosixFile &operator=(const PosixFile &) = delete;
 
     std::error_code open(const char *filename, int flags, mode_t mode);
     void close();

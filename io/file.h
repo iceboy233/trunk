@@ -14,9 +14,6 @@ public:
     File() = default;
     virtual ~File() = default;
 
-    File(const File &) = delete;
-    File &operator=(const File &) = delete;
-
     virtual std::error_code read(absl::Span<uint8_t> buffer, size_t &size) = 0;
     virtual std::error_code write(
         absl::Span<const uint8_t> buffer, size_t &size) = 0;
