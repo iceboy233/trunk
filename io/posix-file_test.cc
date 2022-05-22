@@ -22,7 +22,7 @@ TEST(PosixFileTest, basic) {
     // Create a file and use pwrite to overwrite a portion.
     std::unique_ptr<File> file;
     std::error_code ec = open_posix_file(
-        filename.c_str(), O_CREAT | O_WRONLY, 0644, file);
+        filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644, file);
     ASSERT_FALSE(ec);
     size_t size;
     ec = file->write(make_span("hello "), size);

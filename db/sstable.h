@@ -27,9 +27,32 @@ private:
         int32_t size;
     };
 
+    using BlockMap = boost::container::flat_map<std::string_view, Block>;
+
+public:
+    class Iterator {
+    public:
+        explicit Iterator(const SSTable &sstable);
+
+        std::error_code start();
+        std::error_code seek(std::string_view key);
+        std::error_code next();
+        std::string_view key() const;
+        std::string_view value() const;
+
+    private:
+        std::error_code read();
+
+        const SSTable &sstable_;
+        BlockMap::const_iterator block_iter_;
+        std::vector<uint8_t> buffer_;
+        size_t offset_ = 0;
+    };
+
+private:
     io::File &file_;
     std::vector<uint8_t> index_buffer_;
-    boost::container::flat_map<std::string_view, Block> blocks_;
+    BlockMap blocks_;
 };
 
 class SSTableBuilder {
