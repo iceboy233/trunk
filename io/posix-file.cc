@@ -6,35 +6,23 @@
 #include <cerrno>
 
 namespace io {
-namespace {
 
-class PosixFile : public File {
-public:
-    explicit PosixFile(int fd);
-    ~PosixFile() override;
+std::error_code PosixFile::open(const char *filename, int flags, mode_t mode) {
+    close();
+    int fd = ::open(filename, flags, mode);
+    if (fd < 0) {
+        return {errno, std::system_category()};
+    }
+    fd_ = fd;
+    return {};
+}
 
-    std::error_code read(absl::Span<uint8_t> buffer, size_t &size) override;
-    std::error_code write(
-        absl::Span<const uint8_t> buffer, size_t &size) override;
-    std::error_code pread(
-        int64_t position, absl::Span<uint8_t> buffer, size_t &size) override;
-    std::error_code pwrite(
-        int64_t position,
-        absl::Span<const uint8_t> buffer,
-        size_t &size) override;
-    std::error_code seek(int64_t position) override;
-    std::error_code tell(int64_t &position) override;
-    std::error_code size(int64_t &size) override;
-
-private:
-    int fd_;
-};
-
-PosixFile::PosixFile(int fd)
-    : fd_(fd) {}
-
-PosixFile::~PosixFile() {
-    close(fd_);
+void PosixFile::close() {
+    if (fd_ < 0) {
+        return;
+    }
+    ::close(fd_);
+    fd_ = -1;
 }
 
 std::error_code PosixFile::read(absl::Span<uint8_t> buffer, size_t &size) {
@@ -99,22 +87,6 @@ std::error_code PosixFile::size(int64_t &size) {
     }
     size = static_cast<int64_t>(stat.st_size);
     return {};
-}
-
-}  // namespace
-
-std::error_code open_posix_file(
-    const char *filename, int flags, mode_t mode, std::unique_ptr<File> &file) {
-    int fd = open(filename, flags, mode);
-    if (fd < 0) {
-        return {errno, std::system_category()};
-    }
-    file = wrap_posix_file(fd);
-    return {};
-}
-
-std::unique_ptr<File> wrap_posix_file(int fd) {
-    return std::make_unique<PosixFile>(fd);
 }
 
 }  // namespace io

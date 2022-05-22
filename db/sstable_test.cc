@@ -13,16 +13,16 @@ namespace {
 TEST(SSTableTest, basic) {
     std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
 
-    std::unique_ptr<io::File> file;
-    std::error_code ec = io::open_posix_file(
-        filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644, file);
+    io::PosixFile file;
+    std::error_code ec = file.open(
+        filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
     ASSERT_FALSE(ec);
 
     // Create a SSTable.
     SSTableBuilder::Options options;
     options.block_size = 64;
     options.flush_size = 512;
-    SSTableBuilder builder(*file, options);
+    SSTableBuilder builder(file, options);
     for (int i = 1; i <= 100; ++i) {
         ec = builder.add(absl::StrFormat("k%03d", i),
                          absl::StrFormat("v%03d", i));
@@ -30,12 +30,12 @@ TEST(SSTableTest, basic) {
     }
     ec = builder.finish();
     ASSERT_FALSE(ec);
-    file.reset();
+    file.close();
 
     // Open the SSTable.
-    ec = io::open_posix_file(filename.c_str(), O_RDONLY, 0, file);
+    ec = file.open(filename.c_str(), O_RDONLY, 0);
     ASSERT_FALSE(ec);
-    SSTable sstable(*file, {});
+    SSTable sstable(file, {});
     ec = sstable.init();
     ASSERT_FALSE(ec);
 
@@ -75,19 +75,19 @@ TEST(SSTableTest, basic) {
 TEST(SSTableTest, empty) {
     std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
 
-    std::unique_ptr<io::File> file;
-    std::error_code ec = io::open_posix_file(
-        filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644, file);
+    io::PosixFile file;
+    std::error_code ec = file.open(
+        filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
     ASSERT_FALSE(ec);
 
-    SSTableBuilder builder(*file, {});
+    SSTableBuilder builder(file, {});
     ec = builder.finish();
     ASSERT_FALSE(ec);
-    file.reset();
+    file.close();
 
-    ec = io::open_posix_file(filename.c_str(), O_RDONLY, 0, file);
+    ec = file.open(filename.c_str(), O_RDONLY, 0);
     ASSERT_FALSE(ec);
-    SSTable sstable(*file, {});
+    SSTable sstable(file, {});
     ec = sstable.init();
     ASSERT_FALSE(ec);
 
