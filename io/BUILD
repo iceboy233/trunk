@@ -7,6 +7,16 @@ cc_library(
 )
 
 cc_library(
+    name = "line-reader",
+    srcs = ["line-reader.cc"],
+    hdrs = ["line-reader.h"],
+    deps = [
+        ":file",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+cc_library(
     name = "posix-file",
     srcs = ["posix-file.cc"],
     hdrs = ["posix-file.h"],

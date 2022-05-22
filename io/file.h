@@ -1,6 +1,7 @@
 #ifndef _IO_FILE_H
 #define _IO_FILE_H
 
+#include <cstddef>
 #include <cstdint>
 #include <system_error>
 
