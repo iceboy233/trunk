@@ -86,11 +86,14 @@ std::error_code SSTable::Iterator::start() {
 }
 
 std::error_code SSTable::Iterator::seek(std::string_view key) {
-    auto iter = sstable_.blocks_.upper_bound(key);
-    if (iter == sstable_.blocks_.begin()) {
+    if (sstable_.blocks_.empty()) {
         return make_error_code(std::errc::no_message_available);
     }
-    block_iter_ = std::prev(iter);
+    auto iter = sstable_.blocks_.upper_bound(key);
+    if (iter != sstable_.blocks_.begin()) {
+        iter = std::prev(iter);
+    }
+    block_iter_ = iter;
     offset_ = 0;
     std::error_code ec = read();
     if (ec) {

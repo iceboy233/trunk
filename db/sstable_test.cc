@@ -61,7 +61,7 @@ TEST(SSTableTest, basic) {
     ASSERT_TRUE(iterator.next());
 
     // Test seek.
-    for (int i = 1; i < 100; ++i) {
+    for (int i = 0; i < 100; ++i) {
         SSTable::Iterator iterator(sstable);
         ec = iterator.seek(absl::StrFormat("k%03da", i));
         ASSERT_FALSE(ec);
