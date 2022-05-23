@@ -73,7 +73,7 @@ private:
     struct Block {
         int64_t offset;
         int32_t size;
-        std::string start;
+        std::string last;
     };
 
     io::File &file_;
