@@ -6,7 +6,7 @@ cc_library(
     hdrs = ["sstable.h"],
     deps = [
         "//io:file",
-        "@org_boost_boost//:container",
+        "@com_google_absl//absl/algorithm:container",
         "@org_boost_boost//:endian",
     ],
 )

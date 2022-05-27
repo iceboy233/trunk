@@ -7,7 +7,6 @@
 #include <system_error>
 #include <vector>
 
-#include "boost/container/flat_map.hpp"
 #include "io/file.h"
 
 namespace db {
@@ -27,8 +26,6 @@ private:
         int32_t size;
     };
 
-    using BlockMap = boost::container::flat_map<std::string_view, Block>;
-
 public:
     class Iterator {
     public:
@@ -44,15 +41,16 @@ public:
         std::error_code read();
 
         const SSTable &sstable_;
-        BlockMap::const_iterator block_iter_;
+        std::vector<Block>::const_iterator iter_;
         std::vector<uint8_t> buffer_;
         size_t offset_ = 0;
     };
 
 private:
     io::File &file_;
-    std::vector<uint8_t> index_buffer_;
-    BlockMap blocks_;
+    std::vector<Block> blocks_;
+    std::vector<std::string_view> keys_;
+    std::vector<uint8_t> keys_buffer_;
 };
 
 class SSTableBuilder {

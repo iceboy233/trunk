@@ -1,7 +1,7 @@
 #include "db/sstable.h"
 
+#include "absl/algorithm/container.h"
 #include "boost/endian/conversion.hpp"
-#include "boost/endian/buffers.hpp"
 
 namespace db {
 namespace {
@@ -22,39 +22,45 @@ std::error_code SSTable::init() {
     if (file_size < 8) {
         return make_error_code(std::errc::no_message);
     }
-
-    boost::endian::little_int64_buf_t index_size_buffer;
+    std::array<uint8_t, 8> buffer;
     size_t size;
-    ec = file_.pread(file_size - 8, {index_size_buffer.data(), 8}, size);
-    int64_t index_size = index_size_buffer.value();
-    if (file_size < 8 + index_size) {
+    ec = file_.pread(file_size - 8, absl::MakeSpan(buffer), size);
+    int32_t num_blocks = boost::endian::load_little_s32(&buffer[0]);
+    int32_t keys_size = boost::endian::load_little_s32(&buffer[4]);
+    if (file_size < num_blocks * 16 + keys_size + 8) {
         return make_error_code(std::errc::no_buffer_space);
     }
-    index_buffer_.resize(index_size);
+    std::vector<uint8_t> blocks_buffer(num_blocks * 16);
     ec = file_.pread(
-        file_size - (8 + index_size), absl::MakeSpan(index_buffer_), size);
+        file_size - (num_blocks * 16 + keys_size + 8),
+        absl::MakeSpan(blocks_buffer), size);
     if (ec) {
         return ec;
     }
-
-    size_t offset = 0;
-    while (offset != index_buffer_.size()) {
-        if (offset + 16 > index_buffer_.size()) {
+    keys_buffer_.resize(keys_size);
+    ec = file_.pread(
+        file_size - (keys_size + 8), absl::MakeSpan(keys_buffer_), size);
+    if (ec) {
+        return ec;
+    }
+    blocks_.reserve(num_blocks);
+    keys_.reserve(num_blocks);
+    size_t keys_offset = 0;
+    for (int32_t index = 0; index < num_blocks; ++index) {
+        blocks_.push_back({
+            boost::endian::load_little_s64(&blocks_buffer[index * 16]),
+            boost::endian::load_little_s32(&blocks_buffer[index * 16 + 8])});
+        if (blocks_.back().size <= 0 || blocks_.back().size > max_block_size) {
+            return make_error_code(std::errc::bad_message);
+        }
+        size_t key_size =
+            boost::endian::load_little_s32(&blocks_buffer[index * 16 + 12]);
+        keys_.push_back({reinterpret_cast<char *>(&keys_buffer_[keys_offset]),
+                         key_size});
+        keys_offset += key_size;
+        if (keys_offset > keys_buffer_.size()) {
             return make_error_code(std::errc::no_buffer_space);
         }
-        Block block;
-        block.offset = boost::endian::load_little_s64(&index_buffer_[offset]);
-        block.size = boost::endian::load_little_s32(&index_buffer_[offset + 8]);
-        int32_t block_start_size =
-            boost::endian::load_little_s32(&index_buffer_[offset + 12]);
-        if (offset + 16 + block_start_size > index_buffer_.size()) {
-            return make_error_code(std::errc::no_buffer_space);
-        }
-        std::string_view start(
-            reinterpret_cast<char *>(&index_buffer_[offset + 16]),
-            block_start_size);
-        blocks_.insert(blocks_.end(), {start, block});
-        offset += 16 + block_start_size;
     }
     return {};
 }
@@ -80,17 +86,17 @@ std::error_code SSTable::Iterator::start() {
     if (sstable_.blocks_.empty()) {
         return make_error_code(std::errc::no_message_available);
     }
-    block_iter_ = sstable_.blocks_.begin();
+    iter_ = sstable_.blocks_.begin();
     offset_ = 0;
     return read();
 }
 
 std::error_code SSTable::Iterator::seek(std::string_view key) {
-    auto iter = sstable_.blocks_.lower_bound(key);
-    if (iter == sstable_.blocks_.end()) {
+    auto iter = absl::c_lower_bound(sstable_.keys_, key);
+    if (iter == sstable_.keys_.end()) {
         return make_error_code(std::errc::no_message_available);
     }
-    block_iter_ = iter;
+    iter_ = sstable_.blocks_.begin() + (iter - sstable_.keys_.begin());
     offset_ = 0;
     std::error_code ec = read();
     if (ec) {
@@ -116,7 +122,7 @@ std::error_code SSTable::Iterator::next() {
     }
     offset_ += 8 + key_size + value_size;
     if (offset_ == buffer_.size()) {
-        if (++block_iter_ == sstable_.blocks_.end()) {
+        if (++iter_ == sstable_.blocks_.end()) {
             return make_error_code(std::errc::no_message_available);
         }
         offset_ = 0;
@@ -140,10 +146,7 @@ std::string_view SSTable::Iterator::value() const {
 }
 
 std::error_code SSTable::Iterator::read() {
-    const Block &block = block_iter_->second;
-    if (block.size <= 0 || block.size > max_block_size) {
-        return make_error_code(std::errc::bad_message);
-    }
+    const Block &block = *iter_;
     buffer_.resize(block.size);
     size_t size;
     std::error_code ec = sstable_.file_.pread(
@@ -161,15 +164,13 @@ SSTableBuilder::SSTableBuilder(io::File &file, const Options &options)
 
 std::error_code SSTableBuilder::add(
     std::string_view key, std::string_view value) {
-    size_t offset = buffer_.size();
-    int32_t entry_size = static_cast<int32_t>(8 + key.size() + value.size());
-    buffer_.resize(offset + entry_size);
-    boost::endian::store_little_s32(
-        &buffer_[offset], static_cast<int32_t>(key.size()));
-    boost::endian::store_little_s32(
-        &buffer_[offset + 4], static_cast<int32_t>(value.size()));
-    std::copy(key.begin(), key.end(), &buffer_[offset + 8]);
-    std::copy(value.begin(), value.end(), &buffer_[offset + 8 + key.size()]);
+    size_t size = buffer_.size();
+    int32_t entry_size = 8 + key.size() + value.size();
+    buffer_.resize(size + entry_size);
+    boost::endian::store_little_s32(&buffer_[size], key.size());
+    boost::endian::store_little_s32(&buffer_[size + 4], value.size());
+    absl::c_copy(key, &buffer_[size + 8]);
+    absl::c_copy(value, &buffer_[size + 8 + key.size()]);
 
     if (blocks_.empty()) {
         blocks_.push_back({0, entry_size, std::string(key)});
@@ -191,27 +192,37 @@ std::error_code SSTableBuilder::add(
 }
 
 std::error_code SSTableBuilder::finish() {
-    int64_t index_size = 0;
     for (const auto &block : blocks_) {
-        size_t offset = buffer_.size();
-        size_t entry_size = 16 + block.last.size();
-        buffer_.resize(offset + entry_size);
-        boost::endian::store_little_s64(&buffer_[offset], block.offset);
-        boost::endian::store_little_s32(&buffer_[offset + 8], block.size);
-        boost::endian::store_little_s32(
-            &buffer_[offset + 12], static_cast<int32_t>(block.last.size()));
-        std::copy(block.last.begin(), block.last.end(), &buffer_[offset + 16]);
+        size_t size = buffer_.size();
+        buffer_.resize(size + 16);
+        boost::endian::store_little_s64(&buffer_[size], block.offset);
+        boost::endian::store_little_s32(&buffer_[size + 8], block.size);
+        boost::endian::store_little_s32(&buffer_[size + 12], block.last.size());
         if (buffer_.size() >= flush_size_) {
             std::error_code ec = flush();
             if (ec) {
                 return ec;
             }
         }
-        index_size += entry_size;
     }
-    size_t offset = buffer_.size();
-    buffer_.resize(offset + 8);
-    boost::endian::store_little_s64(&buffer_[offset], index_size);
+    int32_t keys_size = 0;
+    for (const auto &block : blocks_) {
+        size_t size = buffer_.size();
+        buffer_.resize(size + block.last.size());
+        absl::c_copy(block.last, &buffer_[size]);
+        if (buffer_.size() >= flush_size_) {
+            std::error_code ec = flush();
+            if (ec) {
+                return ec;
+            }
+        }
+        keys_size += block.last.size();
+    }
+
+    size_t size = buffer_.size();
+    buffer_.resize(size + 8);
+    boost::endian::store_little_s32(&buffer_[size], blocks_.size());
+    boost::endian::store_little_s32(&buffer_[size + 4], keys_size);
     return flush();
 }
 
