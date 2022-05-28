@@ -21,3 +21,15 @@ cc_library(
         "@org_boost_boost//:smart_ptr",
     ],
 )
+
+cc_library(
+    name = "server",
+    srcs = ["server.cc"],
+    hdrs = ["server.h"],
+    deps = [
+        ":beast",
+        "//net:asio",
+        "//net:timer-list",
+        "@org_boost_boost//:smart_ptr",
+    ]
+)
