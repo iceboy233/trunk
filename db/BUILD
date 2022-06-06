@@ -16,7 +16,7 @@ cc_test(
     srcs = ["sstable_test.cc"],
     deps = [
         ":sstable",
-        "//io:posix-file",
+        "//io/posix:file",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/strings:str_format",
         "@com_google_googletest//:gtest_main",

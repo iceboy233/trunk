@@ -6,15 +6,16 @@
 #include "io/file.h"
 
 namespace io {
+namespace posix {
 
-class PosixFile : public File {
+class File : public io::File {
 public:
-    PosixFile() : fd_(-1) {}
-    explicit PosixFile(int fd) : fd_(fd) {}
-    ~PosixFile() override { close(); }
+    File() : fd_(-1) {}
+    explicit File(int fd) : fd_(fd) {}
+    ~File() override { close(); }
 
-    PosixFile(const PosixFile &) = delete;
-    PosixFile &operator=(const PosixFile &) = delete;
+    File(const File &) = delete;
+    File &operator=(const File &) = delete;
 
     std::error_code open(const char *filename, int flags, mode_t mode);
     void close();
@@ -36,6 +37,7 @@ private:
     int fd_;
 };
 
+}  // namespace posix
 }  // namespace io
 
 #endif  // _IO_POSIX_FILE_H

@@ -1,4 +1,4 @@
-#include "io/posix-file.h"
+#include "io/posix/file.h"
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -6,8 +6,9 @@
 #include <cerrno>
 
 namespace io {
+namespace posix {
 
-std::error_code PosixFile::open(const char *filename, int flags, mode_t mode) {
+std::error_code File::open(const char *filename, int flags, mode_t mode) {
     close();
     int fd = ::open(filename, flags, mode);
     if (fd < 0) {
@@ -17,7 +18,7 @@ std::error_code PosixFile::open(const char *filename, int flags, mode_t mode) {
     return {};
 }
 
-void PosixFile::close() {
+void File::close() {
     if (fd_ < 0) {
         return;
     }
@@ -25,7 +26,7 @@ void PosixFile::close() {
     fd_ = -1;
 }
 
-std::error_code PosixFile::read(absl::Span<uint8_t> buffer, size_t &size) {
+std::error_code File::read(absl::Span<uint8_t> buffer, size_t &size) {
     ssize_t ret = ::read(fd_, buffer.data(), buffer.size());
     if (ret < 0) {
         return {errno, std::system_category()};
@@ -34,7 +35,7 @@ std::error_code PosixFile::read(absl::Span<uint8_t> buffer, size_t &size) {
     return {};
 }
 
-std::error_code PosixFile::write(
+std::error_code File::write(
     absl::Span<const uint8_t> buffer, size_t &size) {
     ssize_t ret = ::write(fd_, buffer.data(), buffer.size());
     if (ret < 0) {
@@ -44,7 +45,7 @@ std::error_code PosixFile::write(
     return {};
 }
 
-std::error_code PosixFile::pread(
+std::error_code File::pread(
     int64_t position, absl::Span<uint8_t> buffer, size_t &size) {
     ssize_t ret = pread64(fd_, buffer.data(), buffer.size(), position);
     if (ret < 0) {
@@ -54,7 +55,7 @@ std::error_code PosixFile::pread(
     return {};
 }
 
-std::error_code PosixFile::pwrite(
+std::error_code File::pwrite(
     int64_t position, absl::Span<const uint8_t> buffer, size_t &size) {
     ssize_t ret = pwrite64(fd_, buffer.data(), buffer.size(), position);
     if (ret < 0) {
@@ -64,14 +65,14 @@ std::error_code PosixFile::pwrite(
     return {};
 }
 
-std::error_code PosixFile::seek(int64_t position) {
+std::error_code File::seek(int64_t position) {
     if (lseek64(fd_, position, SEEK_SET) < 0) {
         return {errno, std::system_category()};
     }
     return {};
 }
 
-std::error_code PosixFile::tell(int64_t &position) {
+std::error_code File::tell(int64_t &position) {
     off_t ret = lseek64(fd_, 0, SEEK_CUR);
     if (ret < 0) {
         return {errno, std::system_category()};
@@ -80,7 +81,7 @@ std::error_code PosixFile::tell(int64_t &position) {
     return {};
 }
 
-std::error_code PosixFile::size(int64_t &size) {
+std::error_code File::size(int64_t &size) {
     struct stat64 stat;
     if (fstat64(fd_, &stat) < 0) {
         return {errno, std::system_category()};
@@ -89,4 +90,5 @@ std::error_code PosixFile::size(int64_t &size) {
     return {};
 }
 
+}  // namespace posix
 }  // namespace io

@@ -1,4 +1,4 @@
-#include "io/posix-file.h"
+#include "io/posix/file.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -6,6 +6,7 @@
 #include "absl/strings/str_cat.h"
 
 namespace io {
+namespace posix {
 namespace {
 
 absl::Span<const uint8_t> make_span(std::string_view string) {
@@ -16,11 +17,11 @@ absl::Span<uint8_t> make_mutable_span(std::string &string) {
     return {reinterpret_cast<uint8_t *>(string.data()), string.size()};
 }
 
-TEST(PosixFileTest, basic) {
+TEST(FileTest, basic) {
     std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
 
     // Create a file and use pwrite to overwrite a portion.
-    PosixFile file;
+    File file;
     std::error_code ec = file.open(
         filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
     ASSERT_FALSE(ec);
@@ -74,4 +75,5 @@ TEST(PosixFileTest, basic) {
 }
 
 }  // namespace
+}  // namespace posix
 }  // namespace io

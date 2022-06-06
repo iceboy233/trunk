@@ -5,7 +5,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
-#include "io/posix-file.h"
+#include "io/posix/file.h"
 
 namespace db {
 namespace {
@@ -13,7 +13,7 @@ namespace {
 TEST(SSTableTest, basic) {
     std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
 
-    io::PosixFile file;
+    io::posix::File file;
     std::error_code ec = file.open(
         filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
     ASSERT_FALSE(ec);
@@ -75,7 +75,7 @@ TEST(SSTableTest, basic) {
 TEST(SSTableTest, empty) {
     std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
 
-    io::PosixFile file;
+    io::posix::File file;
     std::error_code ec = file.open(
         filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
     ASSERT_FALSE(ec);
