@@ -3,7 +3,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "file",
     hdrs = ["file.h"],
-    deps = ["@com_google_absl//absl/types:span"],
+    deps = ["//base:types"],
 )
 
 cc_library(

@@ -9,14 +9,6 @@ namespace io {
 namespace posix {
 namespace {
 
-absl::Span<const uint8_t> make_span(std::string_view string) {
-    return {reinterpret_cast<const uint8_t *>(string.data()), string.size()};
-}
-
-absl::Span<uint8_t> make_mutable_span(std::string &string) {
-    return {reinterpret_cast<uint8_t *>(string.data()), string.size()};
-}
-
 TEST(FileTest, basic) {
     std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
 
@@ -26,11 +18,11 @@ TEST(FileTest, basic) {
         filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
     ASSERT_FALSE(ec);
     size_t size;
-    ec = file.write(make_span("hello "), size);
+    ec = file.write("hello ", size);
     ASSERT_FALSE(ec);
-    ec = file.write(make_span("world"), size);
+    ec = file.write("world", size);
     ASSERT_FALSE(ec);
-    ec = file.pwrite(4, make_span("O W"), size);
+    ec = file.pwrite(4, "O W", size);
     ASSERT_FALSE(ec);
     int64_t file_size;
     ec = file.size(file_size);
@@ -42,15 +34,15 @@ TEST(FileTest, basic) {
     ec = file.open(filename.c_str(), O_RDONLY, 0);
     ASSERT_FALSE(ec);
     std::string buffer(6, '\0');
-    ec = file.read(make_mutable_span(buffer), size);
+    ec = file.read(buffer, size);
     ASSERT_FALSE(ec);
     ASSERT_EQ(size, 6);
     EXPECT_EQ(buffer, "hellO ");
-    ec = file.read(make_mutable_span(buffer), size);
+    ec = file.read(buffer, size);
     ASSERT_FALSE(ec);
     ASSERT_EQ(size, 5);
     EXPECT_EQ(std::string_view(buffer).substr(0, 5), "World");
-    ec = file.read(make_mutable_span(buffer), size);
+    ec = file.read(buffer, size);
     ASSERT_FALSE(ec);
     EXPECT_EQ(size, 0);
     int64_t position;
@@ -64,11 +56,11 @@ TEST(FileTest, basic) {
     ec = file.tell(position);
     ASSERT_FALSE(ec);
     ASSERT_EQ(position, 5);
-    ec = file.read(make_mutable_span(buffer), size);
+    ec = file.read(buffer, size);
     ASSERT_FALSE(ec);
     ASSERT_EQ(size, 6);
     EXPECT_EQ(buffer, " World");
-    ec = file.pread(2, make_mutable_span(buffer), size);
+    ec = file.pread(2, buffer, size);
     ASSERT_FALSE(ec);
     ASSERT_EQ(size, 6);
     EXPECT_EQ(buffer, "llO Wo");

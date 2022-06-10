@@ -5,6 +5,7 @@ cc_library(
     srcs = ["sstable.cc"],
     hdrs = ["sstable.h"],
     deps = [
+        "//base:types",
         "//io:file",
         "@com_google_absl//absl/algorithm:container",
         "@org_boost_boost//:endian",

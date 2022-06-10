@@ -22,3 +22,9 @@ cc_library(
     name = "packed",
     hdrs = ["packed.h"],
 )
+
+cc_library(
+    name = "types",
+    hdrs = ["types.h"],
+    deps = ["@com_google_absl//absl/types:span"],
+)

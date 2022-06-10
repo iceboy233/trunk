@@ -52,12 +52,12 @@ TEST(SSTableTest, basic) {
     ASSERT_TRUE(iterator.next());
     ASSERT_FALSE(iterator.start());
     for (int i = 1; i < 100; ++i) {
-        ASSERT_EQ(iterator.key(), absl::StrFormat("k%03d", i));
-        EXPECT_EQ(iterator.value(), absl::StrFormat("v%03d", i));
+        ASSERT_EQ(std::string_view(iterator.key()), absl::StrFormat("k%03d", i));
+        EXPECT_EQ(std::string_view(iterator.value()), absl::StrFormat("v%03d", i));
         ASSERT_FALSE(iterator.next());
     }
-    ASSERT_EQ(iterator.key(), "k100");
-    EXPECT_EQ(iterator.value(), "v100");
+    ASSERT_EQ(std::string_view(iterator.key()), "k100");
+    EXPECT_EQ(std::string_view(iterator.value()), "v100");
     ASSERT_TRUE(iterator.next());
 
     // Test seek.
@@ -65,8 +65,8 @@ TEST(SSTableTest, basic) {
         SSTable::Iterator iterator(sstable);
         ec = iterator.seek(absl::StrFormat("k%03da", i));
         ASSERT_FALSE(ec);
-        ASSERT_EQ(iterator.key(), absl::StrFormat("k%03d", i + 1));
-        EXPECT_EQ(iterator.value(), absl::StrFormat("v%03d", i + 1));
+        ASSERT_EQ(std::string_view(iterator.key()), absl::StrFormat("k%03d", i + 1));
+        EXPECT_EQ(std::string_view(iterator.value()), absl::StrFormat("v%03d", i + 1));
     }
     ec = iterator.seek("k100a");
     ASSERT_TRUE(ec);

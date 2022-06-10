@@ -1,5 +1,7 @@
 #include "db/sstable.h"
 
+#include <string_view>
+
 #include "absl/algorithm/container.h"
 #include "boost/endian/conversion.hpp"
 
@@ -24,7 +26,7 @@ std::error_code SSTable::init() {
     }
     std::array<uint8_t, 8> buffer;
     size_t size;
-    ec = file_.pread(file_size - 8, absl::MakeSpan(buffer), size);
+    ec = file_.pread(file_size - 8, buffer, size);
     int32_t num_blocks = boost::endian::load_little_s32(&buffer[0]);
     int32_t keys_size = boost::endian::load_little_s32(&buffer[4]);
     if (file_size < num_blocks * 16 + keys_size + 8) {
@@ -32,14 +34,12 @@ std::error_code SSTable::init() {
     }
     std::vector<uint8_t> blocks_buffer(num_blocks * 16);
     ec = file_.pread(
-        file_size - (num_blocks * 16 + keys_size + 8),
-        absl::MakeSpan(blocks_buffer), size);
+        file_size - (num_blocks * 16 + keys_size + 8), blocks_buffer, size);
     if (ec) {
         return ec;
     }
     keys_buffer_.resize(keys_size);
-    ec = file_.pread(
-        file_size - (keys_size + 8), absl::MakeSpan(keys_buffer_), size);
+    ec = file_.pread(file_size - (keys_size + 8), keys_buffer_, size);
     if (ec) {
         return ec;
     }
@@ -53,10 +53,9 @@ std::error_code SSTable::init() {
         if (blocks_.back().size <= 0 || blocks_.back().size > max_block_size) {
             return make_error_code(std::errc::bad_message);
         }
-        size_t key_size =
+        int32_t key_size =
             boost::endian::load_little_s32(&blocks_buffer[index * 16 + 12]);
-        keys_.push_back({reinterpret_cast<char *>(&keys_buffer_[keys_offset]),
-                         key_size});
+        keys_.push_back(ConstBufferSpan(&keys_buffer_[keys_offset], key_size));
         keys_offset += key_size;
         if (keys_offset > keys_buffer_.size()) {
             return make_error_code(std::errc::no_buffer_space);
@@ -65,14 +64,13 @@ std::error_code SSTable::init() {
     return {};
 }
 
-std::error_code SSTable::lookup(
-    std::string_view key, std::string &value) const {
+std::error_code SSTable::lookup(ConstBufferSpan key, std::string &value) const {
     Iterator iterator(*this);
     std::error_code ec = iterator.seek(key);
     if (ec) {
         return ec;
     }
-    if (iterator.key() != key) {
+    if (std::string_view(iterator.key()) != key) {
         return make_error_code(std::errc::no_message_available);
     }
     value = iterator.value();
@@ -91,8 +89,8 @@ std::error_code SSTable::Iterator::start() {
     return read();
 }
 
-std::error_code SSTable::Iterator::seek(std::string_view key) {
-    auto iter = absl::c_lower_bound(sstable_.keys_, key);
+std::error_code SSTable::Iterator::seek(ConstBufferSpan key) {
+    auto iter = absl::c_lower_bound(sstable_.keys_, std::string_view(key));
     if (iter == sstable_.keys_.end()) {
         return make_error_code(std::errc::no_message_available);
     }
@@ -102,7 +100,7 @@ std::error_code SSTable::Iterator::seek(std::string_view key) {
     if (ec) {
         return ec;
     }
-    while (this->key() < key) {
+    while (std::string_view(this->key()) < key) {
         ec = next();
         if (ec) {
             return ec;
@@ -131,26 +129,22 @@ std::error_code SSTable::Iterator::next() {
     return {};
 }
 
-std::string_view SSTable::Iterator::key() const {
+ConstBufferSpan SSTable::Iterator::key() const {
     int32_t key_size = boost::endian::load_little_s32(&buffer_[offset_]);
-    return std::string_view(
-        reinterpret_cast<const char *>(&buffer_[offset_ + 8]), key_size);
+    return ConstBufferSpan(&buffer_[offset_ + 8], key_size);
 }
 
-std::string_view SSTable::Iterator::value() const {
+ConstBufferSpan SSTable::Iterator::value() const {
     int32_t key_size = boost::endian::load_little_s32(&buffer_[offset_]);
     int32_t value_size = boost::endian::load_little_s32(&buffer_[offset_ + 4]);
-    return std::string_view(
-        reinterpret_cast<const char *>(&buffer_[offset_ + 8 + key_size]),
-        value_size);
+    return ConstBufferSpan(&buffer_[offset_ + 8 + key_size], value_size);
 }
 
 std::error_code SSTable::Iterator::read() {
     const Block &block = *iter_;
     buffer_.resize(block.size);
     size_t size;
-    std::error_code ec = sstable_.file_.pread(
-        block.offset, absl::MakeSpan(buffer_), size);
+    std::error_code ec = sstable_.file_.pread(block.offset, buffer_, size);
     if (ec) {
         return ec;
     }
@@ -163,7 +157,7 @@ SSTableBuilder::SSTableBuilder(io::File &file, const Options &options)
       flush_size_(options.flush_size) {}
 
 std::error_code SSTableBuilder::add(
-    std::string_view key, std::string_view value) {
+    ConstBufferSpan key, ConstBufferSpan value) {
     size_t size = buffer_.size();
     int32_t entry_size = 8 + key.size() + value.size();
     buffer_.resize(size + entry_size);

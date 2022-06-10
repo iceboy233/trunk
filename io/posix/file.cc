@@ -12,7 +12,7 @@ SharedFile stdin(STDIN_FILENO);
 SharedFile stdout(STDOUT_FILENO);
 SharedFile stderr(STDERR_FILENO);
 
-std::error_code SharedFile::read(absl::Span<uint8_t> buffer, size_t &size) {
+std::error_code SharedFile::read(BufferSpan buffer, size_t &size) {
     ssize_t ret = ::read(fd_, buffer.data(), buffer.size());
     if (ret < 0) {
         return {errno, std::system_category()};
@@ -21,8 +21,7 @@ std::error_code SharedFile::read(absl::Span<uint8_t> buffer, size_t &size) {
     return {};
 }
 
-std::error_code SharedFile::write(
-    absl::Span<const uint8_t> buffer, size_t &size) {
+std::error_code SharedFile::write(ConstBufferSpan buffer, size_t &size) {
     ssize_t ret = ::write(fd_, buffer.data(), buffer.size());
     if (ret < 0) {
         return {errno, std::system_category()};
@@ -32,7 +31,7 @@ std::error_code SharedFile::write(
 }
 
 std::error_code SharedFile::pread(
-    int64_t position, absl::Span<uint8_t> buffer, size_t &size) {
+    int64_t position, BufferSpan buffer, size_t &size) {
     ssize_t ret = pread64(fd_, buffer.data(), buffer.size(), position);
     if (ret < 0) {
         return {errno, std::system_category()};
@@ -42,7 +41,7 @@ std::error_code SharedFile::pread(
 }
 
 std::error_code SharedFile::pwrite(
-    int64_t position, absl::Span<const uint8_t> buffer, size_t &size) {
+    int64_t position, ConstBufferSpan buffer, size_t &size) {
     ssize_t ret = pwrite64(fd_, buffer.data(), buffer.size(), position);
     if (ret < 0) {
         return {errno, std::system_category()};

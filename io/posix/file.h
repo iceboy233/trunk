@@ -13,15 +13,12 @@ public:
     explicit SharedFile(int fd) : fd_(fd) {}
     ~SharedFile() override = default;
 
-    std::error_code read(absl::Span<uint8_t> buffer, size_t &size) override;
-    std::error_code write(
-        absl::Span<const uint8_t> buffer, size_t &size) override;
+    std::error_code read(BufferSpan buffer, size_t &size) override;
+    std::error_code write(ConstBufferSpan buffer, size_t &size) override;
     std::error_code pread(
-        int64_t position, absl::Span<uint8_t> buffer, size_t &size) override;
+        int64_t position, BufferSpan buffer, size_t &size) override;
     std::error_code pwrite(
-        int64_t position,
-        absl::Span<const uint8_t> buffer,
-        size_t &size) override;
+        int64_t position, ConstBufferSpan buffer, size_t &size) override;
     std::error_code seek(int64_t position) override;
     std::error_code tell(int64_t &position) override;
     std::error_code size(int64_t &size) override;

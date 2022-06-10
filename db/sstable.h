@@ -3,10 +3,10 @@
 
 #include <cstdint>
 #include <string>
-#include <string_view>
 #include <system_error>
 #include <vector>
 
+#include "base/types.h"
 #include "io/file.h"
 
 namespace db {
@@ -18,7 +18,7 @@ public:
     SSTable(io::File &file, const Options &options);
 
     std::error_code init();
-    std::error_code lookup(std::string_view key, std::string &value) const;
+    std::error_code lookup(ConstBufferSpan key, std::string &value) const;
 
 private:
     struct Block {
@@ -32,10 +32,10 @@ public:
         explicit Iterator(const SSTable &sstable);
 
         std::error_code start();
-        std::error_code seek(std::string_view key);
+        std::error_code seek(ConstBufferSpan key);
         std::error_code next();
-        std::string_view key() const;
-        std::string_view value() const;
+        ConstBufferSpan key() const;
+        ConstBufferSpan value() const;
 
     private:
         std::error_code read();
@@ -49,7 +49,7 @@ public:
 private:
     io::File &file_;
     std::vector<Block> blocks_;
-    std::vector<std::string_view> keys_;
+    std::vector<ConstBufferSpan> keys_;
     std::vector<uint8_t> keys_buffer_;
 };
 
@@ -62,7 +62,7 @@ public:
 
     SSTableBuilder(io::File &file, const Options &options);
 
-    std::error_code add(std::string_view key, std::string_view value);
+    std::error_code add(ConstBufferSpan key, ConstBufferSpan value);
     std::error_code finish();
 
 private:
