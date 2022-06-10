@@ -3,25 +3,21 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
-#include "io/posix/file.h"
+#include "io/memory-file.h"
 
 namespace db {
 namespace {
 
 TEST(SSTableTest, basic) {
-    std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
+    io::MemoryFile file;
 
-    io::posix::File file;
-    std::error_code ec = file.create(filename.c_str());
-    ASSERT_FALSE(ec);
-
-    // Create a SSTable.
+    // Build a SSTable.
     SSTableBuilder::Options options;
     options.block_size = 64;
     options.flush_size = 512;
     SSTableBuilder builder(file, options);
+    std::error_code ec;
     for (int i = 1; i <= 100; ++i) {
         ec = builder.add(absl::StrFormat("k%03d", i),
                          absl::StrFormat("v%03d", i));
@@ -29,11 +25,8 @@ TEST(SSTableTest, basic) {
     }
     ec = builder.finish();
     ASSERT_FALSE(ec);
-    file.close();
 
-    // Open the SSTable.
-    ec = file.open(filename.c_str(), O_RDONLY);
-    ASSERT_FALSE(ec);
+    // Load the SSTable.
     SSTable sstable(file, {});
     ec = sstable.init();
     ASSERT_FALSE(ec);
@@ -72,19 +65,11 @@ TEST(SSTableTest, basic) {
 }
 
 TEST(SSTableTest, empty) {
-    std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
-
-    io::posix::File file;
-    std::error_code ec = file.create(filename.c_str());
-    ASSERT_FALSE(ec);
-
+    io::MemoryFile file;
     SSTableBuilder builder(file, {});
-    ec = builder.finish();
+    std::error_code ec = builder.finish();
     ASSERT_FALSE(ec);
-    file.close();
 
-    ec = file.open(filename.c_str(), O_RDONLY);
-    ASSERT_FALSE(ec);
     SSTable sstable(file, {});
     ec = sstable.init();
     ASSERT_FALSE(ec);

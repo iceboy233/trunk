@@ -15,3 +15,10 @@ cc_library(
         "@com_google_absl//absl/types:span",
     ],
 )
+
+cc_library(
+    name = "memory-file",
+    srcs = ["memory-file.cc"],
+    hdrs = ["memory-file.h"],
+    deps = [":file"],
+)
