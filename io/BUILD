@@ -16,6 +16,16 @@ cc_library(
     ],
 )
 
+cc_test(
+    name = "line-reader_test",
+    srcs = ["line-reader_test.cc"],
+    deps = [
+        ":line-reader",
+        ":memory-file",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "memory-file",
     srcs = ["memory-file.cc"],
