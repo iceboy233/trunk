@@ -14,8 +14,7 @@ TEST(FileTest, basic) {
 
     // Create a file and use pwrite to overwrite a portion.
     File file;
-    std::error_code ec = file.open(
-        filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    std::error_code ec = file.create(filename.c_str());
     ASSERT_FALSE(ec);
     size_t size;
     ec = file.write("hello ", size);
@@ -31,7 +30,7 @@ TEST(FileTest, basic) {
     file.close();
 
     // Read the file to verify content and behavior.
-    ec = file.open(filename.c_str(), O_RDONLY, 0);
+    ec = file.open(filename.c_str(), O_RDONLY);
     ASSERT_FALSE(ec);
     std::string buffer(6, '\0');
     ec = file.read(buffer, size);

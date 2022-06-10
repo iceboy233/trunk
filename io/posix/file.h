@@ -40,7 +40,11 @@ public:
     File(const File &) = delete;
     File &operator=(const File &) = delete;
 
-    std::error_code open(const char *filename, int flags, mode_t mode);
+    std::error_code create(const char *filename) {
+        return open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    }
+    std::error_code open(const char *filename, int flags, mode_t mode = 0);
+
     void close();
 };
 

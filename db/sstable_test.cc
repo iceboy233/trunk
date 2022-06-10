@@ -14,8 +14,7 @@ TEST(SSTableTest, basic) {
     std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
 
     io::posix::File file;
-    std::error_code ec = file.open(
-        filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    std::error_code ec = file.create(filename.c_str());
     ASSERT_FALSE(ec);
 
     // Create a SSTable.
@@ -33,7 +32,7 @@ TEST(SSTableTest, basic) {
     file.close();
 
     // Open the SSTable.
-    ec = file.open(filename.c_str(), O_RDONLY, 0);
+    ec = file.open(filename.c_str(), O_RDONLY);
     ASSERT_FALSE(ec);
     SSTable sstable(file, {});
     ec = sstable.init();
@@ -76,8 +75,7 @@ TEST(SSTableTest, empty) {
     std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
 
     io::posix::File file;
-    std::error_code ec = file.open(
-        filename.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    std::error_code ec = file.create(filename.c_str());
     ASSERT_FALSE(ec);
 
     SSTableBuilder builder(file, {});
@@ -85,7 +83,7 @@ TEST(SSTableTest, empty) {
     ASSERT_FALSE(ec);
     file.close();
 
-    ec = file.open(filename.c_str(), O_RDONLY, 0);
+    ec = file.open(filename.c_str(), O_RDONLY);
     ASSERT_FALSE(ec);
     SSTable sstable(file, {});
     ec = sstable.init();
