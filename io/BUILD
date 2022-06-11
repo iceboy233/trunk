@@ -7,6 +7,23 @@ cc_library(
 )
 
 cc_library(
+    name = "file-utils",
+    srcs = ["file-utils.cc"],
+    hdrs = ["file-utils.h"],
+    deps = [":file"],
+)
+
+cc_test(
+    name = "file-utils_test",
+    srcs = ["file-utils_test.cc"],
+    deps = [
+        ":file-utils",
+        ":memory-file",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "line-reader",
     srcs = ["line-reader.cc"],
     hdrs = ["line-reader.h"],
