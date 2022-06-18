@@ -23,6 +23,9 @@ public:
     std::error_code tell(int64_t &position) override;
     std::error_code size(int64_t &size) override;
 
+    std::vector<uint8_t> &content() { return content_; }
+    const std::vector<uint8_t> &content() const { return content_; }
+
 private:
     std::vector<uint8_t> content_;
     size_t position_ = 0;
