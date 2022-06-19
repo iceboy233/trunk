@@ -15,17 +15,14 @@ TEST(FileUtilsTest, read) {
     MemoryFile file({'f', 'o', 'o', 'b', 'a', 'r'});
     std::array<char, 4> buffer;
     size_t size;
-    bool end_of_file;
-    std::error_code ec = read(file, buffer, size, end_of_file);
+    std::error_code ec = read(file, buffer, size);
     ASSERT_FALSE(ec);
     EXPECT_EQ(std::string_view(buffer.data(), 4), "foob");
     EXPECT_EQ(size, 4);
-    EXPECT_FALSE(end_of_file);
-    ec = read(file, buffer, size, end_of_file);
+    ec = read(file, buffer, size);
     ASSERT_FALSE(ec);
     EXPECT_EQ(std::string_view(buffer.data(), 2), "ar");
     EXPECT_EQ(size, 2);
-    EXPECT_TRUE(end_of_file);
 }
 
 TEST(FileUtilsTest, read_to_end) {

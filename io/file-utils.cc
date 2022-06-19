@@ -2,8 +2,7 @@
 
 namespace io {
 
-std::error_code read(
-    File &file, BufferSpan buffer, size_t &size, bool &end_of_file) {
+std::error_code read(File &file, BufferSpan buffer, size_t &size) {
     size = 0;
     while (!buffer.empty()) {
         size_t read_size;
@@ -12,13 +11,11 @@ std::error_code read(
             return ec;
         }
         if (!read_size) {
-            end_of_file = true;
             return {};
         }
         buffer.remove_prefix(read_size);
         size += read_size;
     }
-    end_of_file = false;
     return {};
 }
 
