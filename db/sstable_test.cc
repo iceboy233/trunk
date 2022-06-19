@@ -9,7 +9,7 @@
 namespace db {
 namespace {
 
-TEST(SSTableTest, basic) {
+TEST(SSTableTest, main) {
     io::MemoryFile file;
 
     // Build a SSTable.

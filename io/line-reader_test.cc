@@ -8,7 +8,7 @@
 namespace io {
 namespace {
 
-TEST(LineReaderTest, basic) {
+TEST(LineReaderTest, main) {
     MemoryFile file({'h', 'e', 'l', 'l', 'o', '\n',
                      'w', 'o', 'r', 'l', 'd', '\n'});
     LineReader reader(file, {});

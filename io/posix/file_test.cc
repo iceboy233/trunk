@@ -9,7 +9,7 @@ namespace io {
 namespace posix {
 namespace {
 
-TEST(FileTest, basic) {
+TEST(FileTest, main) {
     std::string filename = absl::StrCat(getenv("TEST_TMPDIR"), "/test");
 
     // Create a file and use pwrite to overwrite a portion.

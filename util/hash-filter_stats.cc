@@ -1,11 +1,13 @@
 #include <cstdint>
-#include <iostream>
 #include <vector>
 
 #include "absl/random/random.h"
+#include "io/posix/file.h"
+#include "io/stream.h"
 #include "util/hash-filter.h"
 
 int main() {
+    io::OStream os(io::posix::stdout);
     absl::InsecureBitGen gen;
     util::HashFilter32 filter(262144);
     std::vector<uint64_t> fingerprints;
@@ -14,7 +16,7 @@ int main() {
         filter.insert(fingerprint);
         fingerprints.push_back(fingerprint);
     }
-    std::cout << "inserted " << filter.size() << std::endl;
+    os << "inserted " << filter.size() << std::endl;
 
     int true_positives = 0;
     int false_negatives = 0;
@@ -25,8 +27,8 @@ int main() {
             ++false_negatives;
         }
     }
-    std::cout << "true positives " << true_positives << std::endl;
-    std::cout << "false negatives " << false_negatives << std::endl;
+    os << "true positives " << true_positives << std::endl;
+    os << "false negatives " << false_negatives << std::endl;
 
     int false_positives = 0;
     int true_negatives = 0;
@@ -38,6 +40,6 @@ int main() {
             ++true_negatives;
         }
     }
-    std::cout << "false positives " << false_positives << std::endl;
-    std::cout << "true negatives " << true_negatives << std::endl;
+    os << "false positives " << false_positives << std::endl;
+    os << "true negatives " << true_negatives << std::endl;
 }

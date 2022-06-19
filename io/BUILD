@@ -49,3 +49,23 @@ cc_library(
     hdrs = ["memory-file.h"],
     deps = [":file"],
 )
+
+cc_library(
+    name = "stream",
+    srcs = ["stream.cc"],
+    hdrs = ["stream.h"],
+    deps = [
+        ":file",
+        ":file-utils",
+    ],
+)
+
+cc_test(
+    name = "stream_test",
+    srcs = ["stream_test.cc"],
+    deps = [
+        ":stream",
+        ":memory-file",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
