@@ -1,5 +1,6 @@
 #include "net/http/server.h"
 
+#include <optional>
 #include <utility>
 #include <boost/beast/core.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
