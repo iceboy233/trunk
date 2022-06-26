@@ -6,8 +6,9 @@
 #include <functional>
 #include <memory>
 #include <system_error>
-#include <vector>
+
 #include "absl/container/flat_hash_map.h"
+#include "base/types.h"
 #include "net/asio.h"
 #include "net/timer-list.h"
 
@@ -23,25 +24,26 @@ public:
     };
 
     IcmpClient(const any_io_executor &executor, const Options &options);
+
     IcmpClient(const IcmpClient &) = delete;
     IcmpClient &operator=(const IcmpClient &) = delete;
 
     void request(
         const icmp::endpoint &endpoint,
-        std::vector<uint8_t> buffer,
-        std::function<void(std::error_code, std::vector<uint8_t>)> callback);
+        ConstBufferSpan buffer,
+        std::function<void(std::error_code, ConstBufferSpan)> callback);
 
 private:
     class Operation;
 
     void receive();
 
-    Options options_;
     icmp::socket socket_;
-    TimerList timer_;
-    uint_fast16_t identifier_;
-    uint_fast16_t next_sequence_number_ = 0;
+    TimerList timer_list_;
+    uint16_t identifier_;
+    uint16_t next_sequence_number_ = 0;
     std::unique_ptr<uint8_t[]> receive_buffer_;
+    size_t receive_buffer_size_;
     absl::flat_hash_map<uint16_t, Operation *> operations_;
 };
 

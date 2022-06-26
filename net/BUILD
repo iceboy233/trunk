@@ -74,8 +74,9 @@ cc_library(
     deps = [
         ":asio",
         ":timer-list",
-        "//base:packed",
+        "//base:types",
         "@com_google_absl//absl/container:flat_hash_map",
+        "@org_boost_boost//:endian",
         "@org_boost_boost//:process",
         "@org_boost_boost//:smart_ptr",
     ],
