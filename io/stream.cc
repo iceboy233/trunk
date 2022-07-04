@@ -7,7 +7,7 @@ namespace io {
 OStream::OStream(File &file)
     : std::ostream(this),
       file_(file) {
-    setp(buffer_.begin(), buffer_.end());
+    setp(&buffer_[0], &buffer_[buffer_.size()]);
 }
 
 int OStream::sync() {
@@ -18,7 +18,7 @@ int OStream::sync() {
     if (io::write(file_, {pbase(), size})) {
         return -1;
     }
-    setp(buffer_.begin(), buffer_.end());
+    setp(&buffer_[0], &buffer_[buffer_.size()]);
     return 0;
 }
 
