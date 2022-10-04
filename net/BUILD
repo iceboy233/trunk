@@ -68,6 +68,15 @@ cc_test(
 )
 
 cc_library(
+    name = "endpoint",
+    hdrs = ["endpoint.h"],
+    deps = [
+        "//net:asio",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_library(
     name = "icmp-client",
     srcs = ["icmp-client.cc"],
     hdrs = ["icmp-client.h"],
