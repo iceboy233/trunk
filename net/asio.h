@@ -14,6 +14,8 @@ using boost::asio::basic_waitable_timer;
 using boost::asio::bind_executor;
 using boost::asio::buffer;
 using boost::asio::buffer_copy;
+using boost::asio::buffer_sequence_begin;
+using boost::asio::buffer_sequence_end;
 using boost::asio::buffered_read_stream;
 using boost::asio::buffered_stream;
 using boost::asio::buffered_write_stream;
