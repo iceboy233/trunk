@@ -93,6 +93,20 @@ cc_test(
 )
 
 cc_library(
+    name = "pod",
+    hdrs = ["pod.h"],
+)
+
+cc_test(
+    name = "pod_test",
+    srcs = ["pod_test.cc"],
+    deps = [
+        ":pod",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "rope",
     srcs = ["rope.cc"],
     hdrs = ["rope.h"],
@@ -109,15 +123,16 @@ cc_test(
 )
 
 cc_library(
-    name = "pod",
-    hdrs = ["pod.h"],
+    name = "strings",
+    srcs = ["strings.cc"],
+    hdrs = ["strings.h"],
 )
 
 cc_test(
-    name = "pod_test",
-    srcs = ["pod_test.cc"],
+    name = "strings_test",
+    srcs = ["strings_test.cc"],
     deps = [
-        ":pod",
+        ":strings",
         "@com_google_googletest//:gtest_main",
     ],
 )

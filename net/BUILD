@@ -72,6 +72,7 @@ cc_library(
     hdrs = ["endpoint.h"],
     deps = [
         "//net:asio",
+        "//util:strings",
         "@com_google_absl//absl/strings",
     ],
 )

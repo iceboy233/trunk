@@ -8,10 +8,10 @@
 #include <string_view>
 #include <utility>
 
-#include "absl/strings/numbers.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_split.h"
 #include "net/asio.h"
+#include "util/strings.h"
 
 namespace net {
 
@@ -49,13 +49,11 @@ std::optional<EndpointBase<AddressT>> EndpointBase<AddressT>::from_string(
     if (ec) {
         return std::nullopt;
     }
-    // TODO(iceboy): Parse uint16_t natively.
-    uint32_t port32;
-    if (!absl::SimpleAtoi(pair.second, &port32) ||
-        port32 > std::numeric_limits<uint16_t>::max()) {
+    uint16_t port = util::consume_uint16(pair.second);
+    if (!pair.second.empty()) {
         return std::nullopt;
     }
-    return EndpointBase<AddressT>(address, static_cast<uint16_t>(port32));
+    return EndpointBase<AddressT>(address, port);
 }
 
 template <typename AddressT>
