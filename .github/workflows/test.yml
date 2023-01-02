@@ -6,20 +6,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-
+    - uses: actions/checkout@v3
     - name: mount bazel cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         key: bazel
         path: ~/.cache/bazel
-
-    - name: install bazelisk
+    - name: install bazel
       run: |
         mkdir -p "${GITHUB_WORKSPACE}/bin/"
-        curl -fLo "${GITHUB_WORKSPACE}/bin/bazel" "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.5/bazelisk-linux-amd64"
+        curl -fLo "${GITHUB_WORKSPACE}/bin/bazel" "https://github.com/bazelbuild/bazel/releases/download/5.4.0/bazel-5.4.0-linux-x86_64"
         chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
-
     - name: test
       run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" test --config=linux //...
+        "${GITHUB_WORKSPACE}/bin/bazel" test ...
