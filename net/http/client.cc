@@ -5,6 +5,7 @@
 #include <boost/beast/core.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
+
 #include "absl/strings/str_cat.h"
 
 namespace net {
@@ -61,7 +62,7 @@ protected:
 
     void resolve() override;
     void connect(const tcp::resolver::results_type &endpoints);
-    virtual void handshake();
+    virtual void handshake() { write(); }
     void keep_alive();
     void read_header();
     void read_some();
@@ -189,12 +190,6 @@ void Client::ConnectionImpl<StreamT>::connect(
 }
 
 template <typename StreamT>
-void Client::ConnectionImpl<StreamT>::handshake() {
-    read_header();
-    write();
-}
-
-template <typename StreamT>
 void Client::ConnectionImpl<StreamT>::keep_alive() {
     if (timer_handle_ != client_.timer_.null_handle()) {
         client_.timer_.update(timer_handle_);
@@ -251,7 +246,6 @@ void Client::ConnectionImpl<StreamT>::read_some() {
             list.push_front(this);
             connections_iter_ = list.begin();
             keep_alive();
-            read_header();
         });
 }
 
@@ -267,6 +261,7 @@ void Client::ConnectionImpl<StreamT>::write() {
                 close();
                 return;
             }
+            read_header();
         });
 }
 
