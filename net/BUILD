@@ -69,12 +69,22 @@ cc_test(
 
 cc_library(
     name = "endpoint",
+    srcs = ["endpoint.cc"],
     hdrs = ["endpoint.h"],
     deps = [
         "//net:asio",
         "//util:strings",
         "@com_google_absl//absl/strings",
     ],
+)
+
+cc_test(
+    name = "endpoint_test",
+    srcs = ["endpoint_test.cc"],
+    deps = [
+        ":endpoint",
+        "@com_google_googletest//:gtest_main",
+    ]
 )
 
 cc_library(
