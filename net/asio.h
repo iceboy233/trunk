@@ -52,6 +52,10 @@ using boost::asio::ip::icmp;
 using boost::asio::ip::make_address;
 using boost::asio::ip::make_address_v4;
 using boost::asio::ip::make_address_v6;
+using boost::asio::ip::make_network_v4;
+using boost::asio::ip::make_network_v6;
+using boost::asio::ip::network_v4;
+using boost::asio::ip::network_v6;
 using boost::asio::ip::tcp;
 using boost::asio::ip::udp;
 
