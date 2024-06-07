@@ -8,9 +8,9 @@
 namespace io {
 namespace posix {
 
-SharedFile stdin(STDIN_FILENO);
-SharedFile stdout(STDOUT_FILENO);
-SharedFile stderr(STDERR_FILENO);
+SharedFile std_input(STDIN_FILENO);
+SharedFile std_output(STDOUT_FILENO);
+SharedFile std_error(STDERR_FILENO);
 
 std::error_code SharedFile::read(BufferSpan buffer, size_t &size) {
     ssize_t ret = ::read(fd_, buffer.data(), buffer.size());

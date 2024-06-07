@@ -7,7 +7,7 @@
 #include "util/hash-filter.h"
 
 int main() {
-    io::OStream os(io::posix::stdout);
+    io::OStream os(io::posix::std_output);
     absl::InsecureBitGen gen;
     util::HashFilter32 filter(262144);
     std::vector<uint64_t> fingerprints;
