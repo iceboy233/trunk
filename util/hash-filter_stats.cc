@@ -2,12 +2,12 @@
 #include <vector>
 
 #include "absl/random/random.h"
-#include "io/posix/file.h"
+#include "io/native-file.h"
 #include "io/stream.h"
 #include "util/hash-filter.h"
 
 int main() {
-    io::OStream os(io::posix::std_output);
+    io::OStream os(io::std_output());
     absl::InsecureBitGen gen;
     util::HashFilter32 filter(262144);
     std::vector<uint64_t> fingerprints;

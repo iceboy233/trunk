@@ -27,9 +27,9 @@ protected:
     HANDLE handle_;
 };
 
-extern SharedFile std_input;
-extern SharedFile std_output;
-extern SharedFile std_error;
+SharedFile &std_input();
+SharedFile &std_output();
+SharedFile &std_error();
 
 class File : public SharedFile {
 public:

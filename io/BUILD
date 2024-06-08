@@ -51,6 +51,15 @@ cc_library(
 )
 
 cc_library(
+    name = "native-file",
+    hdrs = ["native-file.h"],
+    deps = select({
+        "@platforms//os:windows": ["//io/win32:file"],
+        "//conditions:default": ["//io/posix:file"],
+    }),
+)
+
+cc_library(
     name = "stream",
     srcs = ["stream.cc"],
     hdrs = ["stream.h"],

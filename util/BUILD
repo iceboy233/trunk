@@ -77,8 +77,8 @@ cc_binary(
     srcs = ["hash-filter_stats.cc"],
     deps = [
         ":hash-filter",
+        "//io:native-file",
         "//io:stream",
-        "//io/posix:file",
         "@com_google_absl//absl/random",
     ],
 )

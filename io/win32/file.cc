@@ -3,9 +3,20 @@
 namespace io {
 namespace win32 {
 
-SharedFile std_input(GetStdHandle(STD_INPUT_HANDLE));
-SharedFile std_output(GetStdHandle(STD_OUTPUT_HANDLE));
-SharedFile std_error(GetStdHandle(STD_ERROR_HANDLE));
+SharedFile &std_input() {
+    static SharedFile result(GetStdHandle(STD_INPUT_HANDLE));
+    return result;
+}
+
+SharedFile &std_output() {
+    static SharedFile result(GetStdHandle(STD_OUTPUT_HANDLE));
+    return result;
+}
+
+SharedFile &std_error() {
+    static SharedFile result(GetStdHandle(STD_ERROR_HANDLE));
+    return result;
+}
 
 std::error_code SharedFile::read(BufferSpan buffer, size_t &size) {
     DWORD bytes_read;
