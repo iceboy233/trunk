@@ -93,6 +93,29 @@ cc_test(
 )
 
 cc_library(
+    name = "hex-dumper",
+    srcs = ["hex-dumper.cc"],
+    hdrs = ["hex-dumper.h"],
+    deps = [
+        "//base:types",
+        "//io:file",
+        "//io:file-utils",
+        "@com_google_absl//absl/container:fixed_array",
+    ],
+)
+
+cc_test(
+    name = "hex-dumper_test",
+    srcs = ["hex-dumper_test.cc"],
+    deps = [
+        ":hex-dumper",
+        "//base:types",
+        "//io:memory-file",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "pod",
     hdrs = ["pod.h"],
 )
