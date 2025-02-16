@@ -45,7 +45,7 @@ public:
         IcmpClient &client,
         const icmp::endpoint &endpoint,
         uint16_t sequence_number,
-        std::function<void(std::error_code, ConstBufferSpan)> callback);
+        absl::AnyInvocable<void(std::error_code, ConstBufferSpan) &&> callback);
     ~Operation();
 
     Operation(const Operation &) = delete;
@@ -58,7 +58,7 @@ private:
     IcmpClient &client_;
     icmp::endpoint endpoint_;
     uint16_t sequence_number_;
-    std::function<void(std::error_code, ConstBufferSpan)> callback_;
+    absl::AnyInvocable<void(std::error_code, ConstBufferSpan) &&> callback_;
     std::optional<TimerList::Timer> timer_;
     IcmpHeader request_header_;
 };
@@ -76,10 +76,10 @@ IcmpClient::IcmpClient(const any_io_executor &executor, const Options &options)
 void IcmpClient::request(
     const icmp::endpoint &endpoint,
     ConstBufferSpan buffer,
-    std::function<void(std::error_code, ConstBufferSpan)> callback) {
+    absl::AnyInvocable<void(std::error_code, ConstBufferSpan) &&> callback) {
     uint16_t sequence_number = next_sequence_number_;
     if (operations_.find(sequence_number) != operations_.end()) {
-        callback(make_error_code(std::errc::no_buffer_space), {});
+        std::move(callback)(make_error_code(std::errc::no_buffer_space), {});
         return;
     }
     ++next_sequence_number_;
@@ -125,7 +125,7 @@ IcmpClient::Operation::Operation(
     IcmpClient &client,
     const icmp::endpoint &endpoint,
     uint16_t sequence_number,
-    std::function<void(std::error_code, ConstBufferSpan)> callback)
+    absl::AnyInvocable<void(std::error_code, ConstBufferSpan) &&> callback)
     : client_(client),
       endpoint_(endpoint),
       sequence_number_(sequence_number),
@@ -158,7 +158,7 @@ void IcmpClient::Operation::start(ConstBufferSpan buffer) {
 }
 
 void IcmpClient::Operation::finish(std::error_code ec, ConstBufferSpan buffer) {
-    callback_(ec, buffer);
+    std::move(callback_)(ec, buffer);
     intrusive_ptr_release(this);
 }
 

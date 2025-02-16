@@ -96,6 +96,7 @@ cc_library(
         ":timer-list",
         "//base:types",
         "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/functional:any_invocable",
         "@org_boost_boost//:endian",
         "@org_boost_boost//:process",
         "@org_boost_boost//:smart_ptr",

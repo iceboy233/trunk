@@ -3,11 +3,11 @@
 
 #include <chrono>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <system_error>
 
 #include "absl/container/flat_hash_map.h"
+#include "absl/functional/any_invocable.h"
 #include "base/types.h"
 #include "net/asio.h"
 #include "net/timer-list.h"
@@ -31,7 +31,7 @@ public:
     void request(
         const icmp::endpoint &endpoint,
         ConstBufferSpan buffer,
-        std::function<void(std::error_code, ConstBufferSpan)> callback);
+        absl::AnyInvocable<void(std::error_code, ConstBufferSpan) &&> callback);
 
 private:
     class Operation;
