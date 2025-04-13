@@ -1,4 +1,4 @@
-module(name = "trunk", repo_name = "org_iceboy_trunk")
+module(name = "trunk")
 
 bazel_dep(name = "abseil-cpp", version = "20250127.1")
 bazel_dep(name = "boost.asio", version = "1.87.0.bcr.1")
