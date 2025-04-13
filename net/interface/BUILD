@@ -11,7 +11,7 @@ cc_library(
     ],
     deps = [
         "//net:asio",
-        "@com_google_absl//absl/functional:any_invocable",
-        "@com_google_absl//absl/types:span",
+        "@abseil-cpp//absl/functional:any_invocable",
+        "@abseil-cpp//absl/types:span",
     ],
 )

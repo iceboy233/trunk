@@ -15,6 +15,6 @@ cc_test(
     srcs = ["file_test.cc"],
     deps = [
         ":file",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ]
 )

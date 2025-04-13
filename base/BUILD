@@ -5,9 +5,9 @@ cc_library(
     srcs = ["flags.cc"],
     hdrs = ["flags.h"],
     deps = [
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:parse",
-        "@com_google_absl//absl/flags:usage",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/flags:parse",
+        "@abseil-cpp//absl/flags:usage",
     ],
 )
 
@@ -15,7 +15,7 @@ cc_library(
     name = "logging",
     srcs = ["logging.cc"],
     hdrs = ["logging.h"],
-    deps = ["@org_boost_boost//:log"],
+    deps = ["@boost.log"],
 )
 
 cc_library(
@@ -26,5 +26,5 @@ cc_library(
 cc_library(
     name = "types",
     hdrs = ["types.h"],
-    deps = ["@com_google_absl//absl/types:span"],
+    deps = ["@abseil-cpp//absl/types:span"],
 )

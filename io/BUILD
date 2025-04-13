@@ -19,7 +19,7 @@ cc_test(
     deps = [
         ":file-utils",
         ":memory-file",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -29,7 +29,7 @@ cc_library(
     hdrs = ["line-reader.h"],
     deps = [
         ":file",
-        "@com_google_absl//absl/types:span",
+        "@abseil-cpp//absl/types:span",
     ],
 )
 
@@ -39,7 +39,7 @@ cc_test(
     deps = [
         ":line-reader",
         ":memory-file",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -73,8 +73,8 @@ cc_test(
     name = "stream_test",
     srcs = ["stream_test.cc"],
     deps = [
-        ":stream",
         ":memory-file",
-        "@com_google_googletest//:gtest_main",
+        ":stream",
+        "@googletest//:gtest_main",
     ],
 )

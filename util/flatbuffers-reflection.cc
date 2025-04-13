@@ -28,7 +28,7 @@ bool verify_and_unpack(
         *schema, *schema->root_table(), in.data(), in.size())) {
         return false;
     }
-    return flatbuffers::GenerateText(parser, in.data(), &out);
+    return !flatbuffers::GenText(parser, in.data(), &out);
 }
 
 }  // namespace util

@@ -3,7 +3,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "asio",
     hdrs = ["asio.h"],
-    deps = ["@org_boost_boost//:asio"],
+    deps = ["@boost.asio"],
 )
 
 cc_test(
@@ -11,7 +11,7 @@ cc_test(
     srcs = ["asio_test.cc"],
     deps = [
         ":asio",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -20,8 +20,8 @@ cc_library(
     srcs = ["asio-flags.cc"],
     hdrs = ["asio-flags.h"],
     deps = [
-        "@org_boost_boost//:asio",
-        "@org_boost_boost//:system",
+        "@boost.asio",
+        "@boost.system",
     ],
 )
 
@@ -30,14 +30,14 @@ cc_test(
     srcs = ["asio-flags_test.cc"],
     deps = [
         ":asio-flags",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
 cc_library(
     name = "asio-hash",
     hdrs = ["asio-hash.h"],
-    deps = ["@org_boost_boost//:asio"],
+    deps = ["@boost.asio"],
 )
 
 cc_binary(
@@ -46,9 +46,9 @@ cc_binary(
     deps = [
         ":asio",
         ":asio-hash",
-        "@com_github_google_benchmark//:benchmark_main",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/random",
+        "@abseil-cpp//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/random",
+        "@google_benchmark//:benchmark_main",
     ],
 )
 
@@ -63,7 +63,7 @@ cc_test(
     srcs = ["blocking-result_test.cc"],
     deps = [
         ":blocking-result",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -74,7 +74,7 @@ cc_library(
     deps = [
         "//net:asio",
         "//util:strings",
-        "@com_google_absl//absl/strings",
+        "@abseil-cpp//absl/strings",
     ],
 )
 
@@ -83,8 +83,8 @@ cc_test(
     srcs = ["endpoint_test.cc"],
     deps = [
         ":endpoint",
-        "@com_google_googletest//:gtest_main",
-    ]
+        "@googletest//:gtest_main",
+    ],
 )
 
 cc_library(
@@ -95,11 +95,11 @@ cc_library(
         ":asio",
         ":timer-list",
         "//base:types",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/functional:any_invocable",
-        "@org_boost_boost//:endian",
-        "@org_boost_boost//:process",
-        "@org_boost_boost//:smart_ptr",
+        "@abseil-cpp//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/functional:any_invocable",
+        "@boost.endian",
+        "@boost.process",
+        "@boost.smart_ptr",
     ],
 )
 
@@ -109,7 +109,7 @@ cc_library(
     hdrs = ["ip-encoding.h"],
     deps = [
         ":asio",
-        "@com_google_absl//absl/types:span",
+        "@abseil-cpp//absl/types:span",
     ],
 )
 
@@ -119,7 +119,7 @@ cc_test(
     deps = [
         ":asio",
         ":ip-encoding",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -144,6 +144,6 @@ cc_test(
         ":timer-list",
         "//net/testing:timer",
         "//util/testing:clock",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )

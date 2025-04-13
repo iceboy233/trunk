@@ -1,7 +1,7 @@
 #include "net/icmp-client.h"
 
 #include <boost/endian/buffers.hpp>
-#include <boost/process/environment.hpp>
+#include <boost/process/v2/pid.hpp>
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
@@ -67,7 +67,7 @@ IcmpClient::IcmpClient(const any_io_executor &executor, const Options &options)
     // TODO(iceboy): Support IPv6.
     : socket_(executor, {icmp::v4(), 0}),
       timer_list_(executor, options.timeout),
-      identifier_(static_cast<uint16_t>(boost::this_process::get_id())),
+      identifier_(static_cast<uint16_t>(boost::process::current_pid())),
       receive_buffer_(std::make_unique<uint8_t[]>(options.receive_buffer_size)),
       receive_buffer_size_(options.receive_buffer_size) {
     receive();

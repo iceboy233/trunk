@@ -6,8 +6,8 @@ cc_library(
     hdrs = ["key.h"],
     deps = [
         ":types",
+        "@abseil-cpp//absl/types:span",
         "@boringssl//:crypto",
-        "@com_google_absl//absl/types:span",
     ],
 )
 
@@ -16,7 +16,7 @@ cc_test(
     srcs = ["key_test.cc"],
     deps = [
         ":key",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -26,7 +26,7 @@ cc_library(
     hdrs = ["keystore.h"],
     deps = [
         ":key",
-        "@com_google_absl//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/container:flat_hash_map",
     ],
 )
 
@@ -35,7 +35,7 @@ cc_test(
     srcs = ["keystore_test.cc"],
     deps = [
         ":keystore",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 

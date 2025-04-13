@@ -12,7 +12,7 @@ cc_test(
     srcs = ["file_test.cc"],
     deps = [
         ":file",
-        "@com_google_absl//absl/strings",
-        "@com_google_googletest//:gtest_main",
+        "@abseil-cpp//absl/strings",
+        "@googletest//:gtest_main",
     ]
 )

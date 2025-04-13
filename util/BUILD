@@ -10,7 +10,7 @@ cc_test(
     srcs = ["fibonacci-sequence_test.cc"],
     deps = [
         ":fibonacci-sequence",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -18,8 +18,8 @@ cc_library(
     name = "flatbuffers",
     hdrs = ["flatbuffers.h"],
     deps = [
-        "@com_github_google_flatbuffers//:runtime_cc",
-        "@com_google_absl//absl/types:span",
+        "@abseil-cpp//absl/types:span",
+        "@flatbuffers//:runtime_cc",
     ],
 )
 
@@ -29,7 +29,7 @@ cc_test(
     deps = [
         ":flatbuffers",
         "//util/flatbuffers:test",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -38,8 +38,8 @@ cc_library(
     srcs = ["flatbuffers-reflection.cc"],
     hdrs = ["flatbuffers-reflection.h"],
     deps = [
-        "@com_github_google_flatbuffers//:flatbuffers",
-        "@com_google_absl//absl/types:span",
+        "@abseil-cpp//absl/types:span",
+        "@flatbuffers",
     ],
 )
 
@@ -48,7 +48,7 @@ cc_test(
     srcs = ["flatbuffers-reflection_test.cc"],
     deps = [
         ":flatbuffers-reflection",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -57,8 +57,8 @@ cc_library(
     srcs = ["hash-filter.cc"],
     hdrs = ["hash-filter.h"],
     deps = [
-        "@com_google_absl//absl/base",
-        "@com_google_absl//absl/random",
+        "@abseil-cpp//absl/base",
+        "@abseil-cpp//absl/random",
     ],
 )
 
@@ -67,8 +67,8 @@ cc_binary(
     srcs = ["hash-filter_benchmark.cc"],
     deps = [
         ":hash-filter",
-        "@com_google_absl//absl/random",
-        "@com_github_google_benchmark//:benchmark_main",
+        "@abseil-cpp//absl/random",
+        "@google_benchmark//:benchmark_main",
     ],
 )
 
@@ -79,7 +79,7 @@ cc_binary(
         ":hash-filter",
         "//io:native-file",
         "//io:stream",
-        "@com_google_absl//absl/random",
+        "@abseil-cpp//absl/random",
     ],
 )
 
@@ -88,7 +88,7 @@ cc_test(
     srcs = ["hash-filter_test.cc"],
     deps = [
         ":hash-filter",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -100,7 +100,7 @@ cc_library(
         "//base:types",
         "//io:file",
         "//io:file-utils",
-        "@com_google_absl//absl/container:fixed_array",
+        "@abseil-cpp//absl/container:fixed_array",
     ],
 )
 
@@ -111,7 +111,7 @@ cc_test(
         ":hex-dumper",
         "//base:types",
         "//io:memory-file",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -125,7 +125,7 @@ cc_test(
     srcs = ["pod_test.cc"],
     deps = [
         ":pod",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -133,7 +133,7 @@ cc_library(
     name = "rope",
     srcs = ["rope.cc"],
     hdrs = ["rope.h"],
-    deps = ["@com_google_absl//absl/random"],
+    deps = ["@abseil-cpp//absl/random"],
 )
 
 cc_test(
@@ -141,7 +141,7 @@ cc_test(
     srcs = ["rope_test.cc"],
     deps = [
         ":rope",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -156,7 +156,7 @@ cc_test(
     srcs = ["strings_test.cc"],
     deps = [
         ":strings",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -171,14 +171,14 @@ cc_test(
     srcs = ["utf_test.cc"],
     deps = [
         ":utf",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
 cc_library(
     name = "varint",
     hdrs = ["varint.h"],
-    deps = ["@com_google_absl//absl/types:span"],
+    deps = ["@abseil-cpp//absl/types:span"],
 )
 
 cc_test(
@@ -186,7 +186,7 @@ cc_test(
     srcs = ["varint_test.cc"],
     deps = [
         ":varint",
-        "@com_google_absl//absl/types:span",
-        "@com_google_googletest//:gtest_main",
+        "@abseil-cpp//absl/types:span",
+        "@googletest//:gtest_main",
     ],
 )

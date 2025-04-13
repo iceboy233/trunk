@@ -3,7 +3,7 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "beast",
     hdrs = ["beast.h"],
-    deps = ["@org_boost_boost//:beast"],
+    deps = ["@boost.beast"],
 )
 
 cc_library(
@@ -14,11 +14,11 @@ cc_library(
         ":beast",
         "//net:asio",
         "//net:timer-list",
+        "@abseil-cpp//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/strings",
+        "@boost.asio",
+        "@boost.smart_ptr",
         "@boringssl//:ssl",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/strings",
-        "@org_boost_boost//:asio",
-        "@org_boost_boost//:smart_ptr",
     ],
 )
 
@@ -30,6 +30,6 @@ cc_library(
         ":beast",
         "//net:asio",
         "//net:timer-list",
-        "@org_boost_boost//:smart_ptr",
-    ]
+        "@boost.smart_ptr",
+    ],
 )

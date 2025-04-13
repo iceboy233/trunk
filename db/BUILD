@@ -7,8 +7,8 @@ cc_library(
     deps = [
         "//base:types",
         "//io:file",
-        "@com_google_absl//absl/algorithm:container",
-        "@org_boost_boost//:endian",
+        "@abseil-cpp//absl/algorithm:container",
+        "@boost.endian",
     ],
 )
 
@@ -18,7 +18,7 @@ cc_test(
     deps = [
         ":sstable",
         "//io:memory-file",
-        "@com_google_absl//absl/strings:str_format",
-        "@com_google_googletest//:gtest_main",
+        "@abseil-cpp//absl/strings:str_format",
+        "@googletest//:gtest_main",
     ],
 )

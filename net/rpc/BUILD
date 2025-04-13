@@ -11,11 +11,11 @@ cc_library(
         "//security:key",
         "//security/keys:zero_key_cc",
         "//util:fibonacci-sequence",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/random",
-        "@com_google_absl//absl/types:span",
-        "@org_boost_boost//:icl",
-        "@org_boost_boost//:smart_ptr",
+        "@abseil-cpp//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/random",
+        "@abseil-cpp//absl/types:span",
+        "@boost.icl",
+        "@boost.smart_ptr",
     ],
 )
 
@@ -61,7 +61,7 @@ cc_test(
         "//net:asio",
         "//net:blocking-result",
         "//net/rpc/flatbuffers:list",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -79,10 +79,10 @@ cc_library(
         "//security:key",
         "//security:keystore",
         "//security/keys:zero_key_cc",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/types:span",
-        "@org_boost_boost//:icl",
-        "@org_boost_boost//:smart_ptr",
+        "@abseil-cpp//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/types:span",
+        "@boost.icl",
+        "@boost.smart_ptr",
     ],
 )
 

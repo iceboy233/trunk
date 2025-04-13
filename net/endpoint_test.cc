@@ -7,8 +7,8 @@ namespace net {
 namespace {
 
 TEST(EndpointTest, v4) {
-    Endpoint e(address_v4::from_string("1.2.3.4"), 5678);
-    EndpointV4 e4(address_v4::from_string("1.2.3.4"), 5678);
+    Endpoint e(make_address_v4("1.2.3.4"), 5678);
+    EndpointV4 e4(make_address_v4("1.2.3.4"), 5678);
     EXPECT_EQ(e, e4);
     EXPECT_EQ(e.to_string(), "1.2.3.4:5678");
     EXPECT_EQ(e4.to_string(), "1.2.3.4:5678");
@@ -20,8 +20,8 @@ TEST(EndpointTest, v4) {
 }
 
 TEST(EndpointTest, v6) {
-    Endpoint e(address_v6::from_string("2001:db8::8888"), 5678);
-    EndpointV6 e6(address_v6::from_string("2001:db8::8888"), 5678);
+    Endpoint e(make_address_v6("2001:db8::8888"), 5678);
+    EndpointV6 e6(make_address_v6("2001:db8::8888"), 5678);
     EXPECT_EQ(e, e6);
     EXPECT_EQ(e.to_string(), "[2001:db8::8888]:5678");
     EXPECT_EQ(e6.to_string(), "[2001:db8::8888]:5678");
