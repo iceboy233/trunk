@@ -3,7 +3,7 @@ def key_cc_library(name, srcs, visibility=None):
         name = name,
         srcs = [":{}_srcs".format(name)],
         hdrs = [":{}_srcs".format(name)],
-        deps = ["@org_iceboy_trunk//security:key"],
+        deps = ["@trunk//security:key"],
         visibility = visibility,
     )
 
@@ -17,7 +17,7 @@ def key_cc_library(name, srcs, visibility=None):
         name = "{}_srcs".format(name),
         srcs = srcs,
         outs = outs,
-        cmd = "$(location @org_iceboy_trunk//security/keys:generate-key-cc) \"$<\" \"$(@D)\"",
-        tools = ["@org_iceboy_trunk//security/keys:generate-key-cc"],
+        cmd = "$(location @trunk//security/keys:generate-key-cc) \"$<\" \"$(@D)\"",
+        tools = ["@trunk//security/keys:generate-key-cc"],
         visibility = ["//visibility:private"],
     )
