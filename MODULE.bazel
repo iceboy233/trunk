@@ -3,6 +3,8 @@ module(name = "trunk")
 bazel_dep(name = "abseil-cpp", version = "20250127.1")
 bazel_dep(name = "boost.asio", version = "1.87.0.bcr.1")
 bazel_dep(name = "boost.beast", version = "1.87.0.bcr.1")
+bazel_dep(name = "boost.container", version = "1.87.0.bcr.2")
+bazel_dep(name = "boost.context", version = "1.87.0.bcr.1")
 bazel_dep(name = "boost.endian", version = "1.87.0")
 bazel_dep(name = "boost.icl", version = "1.87.0")
 bazel_dep(name = "boost.log", version = "1.87.0")
@@ -17,5 +19,6 @@ bazel_dep(name = "platforms", version = "0.0.11")
 
 register_toolchains(
     "//third_party/linux_crosstool:linux-aarch64_toolchain",
+    "//third_party/linux_crosstool:linux-x86_32_toolchain",
     "//third_party/linux_crosstool:linux-x86_64_toolchain",
 )
