@@ -47,6 +47,7 @@ cc_library(
     srcs = ["host-port.cc"],
     hdrs = ["host-port.h"],
     deps = [
+        ":addr-port",
         ":host",
         "//net:asio",
         "//util:strings",

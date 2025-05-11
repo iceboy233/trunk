@@ -6,6 +6,7 @@
 #include <string>
 
 #include "net/asio.h"
+#include "net/types/addr-port.h"
 #include "net/types/host.h"
 
 namespace net {
@@ -14,6 +15,8 @@ class HostPort {
 public:
     HostPort() = default;
     HostPort(const Host &host, uint16_t port) : host_(host), port_(port) {}
+    HostPort(const AddrPort &addr_port)
+        : host_(addr_port.address()), port_(addr_port.port()) {}
 
     Host &host() { return host_; }
     const Host &host() const { return host_; }
@@ -24,6 +27,7 @@ public:
     const net::address &address() const { return host_.address(); }
     explicit operator tcp::endpoint() const { return {host_.address(), port_}; }
     explicit operator udp::endpoint() const { return {host_.address(), port_}; }
+    explicit operator AddrPort() const { return {host_.address(), port_}; }
 
     bool is_name_port() const { return host_.is_name(); }
     const std::string &name() const { return host_.name(); }
