@@ -14,6 +14,8 @@ class Host {
 public:
     Host() = default;
     Host(const net::address &address) : rep_(address) {}
+    Host(const net::address_v4 &address) : rep_(address) {}
+    Host(const net::address_v6 &address) : rep_(address) {}
     Host(std::string_view name) : rep_(std::string(name)) {}
 
     bool is_address() const {
