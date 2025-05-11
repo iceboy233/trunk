@@ -17,6 +17,7 @@ public:
     AddrPort(const net::address &address, uint16_t port)
         : address_(address), port_(port) {}
 
+    bool empty() const { return address_.is_unspecified() && !port_; }
     const net::address &address() const { return address_; }
     uint16_t port() const { return port_; }
 

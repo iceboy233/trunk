@@ -10,6 +10,7 @@ namespace {
 
 TEST(HostPortTest, empty) {
     HostPort host_port;
+    EXPECT_TRUE(host_port.empty());
     EXPECT_EQ(host_port.host(), Host());
     EXPECT_EQ(host_port.port(), 0);
     EXPECT_TRUE(host_port.is_addr_port());
@@ -30,6 +31,7 @@ TEST(HostPortTest, empty) {
 
 TEST(HostPortTest, address_v4) {
     HostPort host_port(make_address("1.2.3.4"), 5678);
+    EXPECT_FALSE(host_port.empty());
     EXPECT_EQ(host_port.host(), make_address("1.2.3.4"));
     EXPECT_EQ(host_port.port(), 5678);
     EXPECT_TRUE(host_port.is_addr_port());
@@ -47,6 +49,7 @@ TEST(HostPortTest, address_v4) {
 
 TEST(HostPortTest, address_v6) {
     HostPort host_port(make_address("2001:db8::8888"), 5678);
+    EXPECT_FALSE(host_port.empty());
     EXPECT_EQ(host_port.host(), make_address("2001:db8::8888"));
     EXPECT_EQ(host_port.port(), 5678);
     EXPECT_TRUE(host_port.is_addr_port());
@@ -65,6 +68,7 @@ TEST(HostPortTest, address_v6) {
 
 TEST(HostPortTest, name) {
     HostPort host_port(Host("name.test"), 5678);
+    EXPECT_FALSE(host_port.empty());
     EXPECT_EQ(host_port.host(), Host("name.test"));
     EXPECT_EQ(host_port.port(), 5678);
     EXPECT_FALSE(host_port.is_addr_port());

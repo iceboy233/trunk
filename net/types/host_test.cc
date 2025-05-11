@@ -10,6 +10,7 @@ namespace {
 
 TEST(HostTest, empty) {
     Host host;
+    EXPECT_TRUE(host.empty());
     EXPECT_TRUE(host.is_address());
     EXPECT_EQ(host.address(), address());
     EXPECT_FALSE(host.is_name());
@@ -20,6 +21,7 @@ TEST(HostTest, empty) {
 
 TEST(HostTest, address_v4) {
     Host host(make_address("1.2.3.4"));
+    EXPECT_FALSE(host.empty());
     EXPECT_TRUE(host.is_address());
     EXPECT_EQ(host.address(), make_address("1.2.3.4"));
     EXPECT_FALSE(host.is_name());
@@ -29,6 +31,7 @@ TEST(HostTest, address_v4) {
 
 TEST(HostTest, address_v6) {
     Host host(make_address("2001:db8::8888"));
+    EXPECT_FALSE(host.empty());
     EXPECT_TRUE(host.is_address());
     EXPECT_EQ(host.address(), make_address("2001:db8::8888"));
     EXPECT_FALSE(host.is_name());
@@ -38,6 +41,7 @@ TEST(HostTest, address_v6) {
 
 TEST(HostTest, name) {
     Host host("name.test");
+    EXPECT_FALSE(host.empty());
     EXPECT_FALSE(host.is_address());
     EXPECT_TRUE(host.is_name());
     EXPECT_EQ(host.name(), "name.test");

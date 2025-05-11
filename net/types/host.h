@@ -18,9 +18,14 @@ public:
     Host(const net::address_v6 &address) : rep_(address) {}
     Host(std::string_view name) : rep_(std::string(name)) {}
 
+    bool empty() const {
+        return is_address() ? address().is_unspecified() : name().empty();
+    }
+
     bool is_address() const {
         return std::holds_alternative<net::address>(rep_);
     }
+
     const net::address &address() const { return std::get<net::address>(rep_); }
     void set_address(const net::address &address) { rep_ = address; }
 

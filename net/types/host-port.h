@@ -18,6 +18,7 @@ public:
     HostPort(const AddrPort &addr_port)
         : host_(addr_port.address()), port_(addr_port.port()) {}
 
+    bool empty() const { return host_.empty() && !port_; }
     Host &host() { return host_; }
     const Host &host() const { return host_; }
     uint16_t port() const { return port_; }
