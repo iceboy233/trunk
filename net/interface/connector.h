@@ -10,6 +10,7 @@
 #include "net/asio.h"
 #include "net/interface/datagram.h"
 #include "net/interface/stream.h"
+#include "net/types/host-port.h"
 
 namespace net {
 
@@ -18,14 +19,7 @@ public:
     virtual ~Connector() = default;
 
     virtual void connect(
-        const tcp::endpoint &endpoint,
-        const_buffer initial_data,
-        absl::AnyInvocable<void(
-            std::error_code, std::unique_ptr<Stream>) &&> callback) = 0;
-
-    virtual void connect(
-        std::string_view host,
-        uint16_t port,
+        const HostPort &target,
         const_buffer initial_data,
         absl::AnyInvocable<void(
             std::error_code, std::unique_ptr<Stream>) &&> callback) = 0;

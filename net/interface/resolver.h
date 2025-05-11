@@ -15,7 +15,7 @@ public:
     virtual ~Resolver() = default;
 
     virtual void resolve(
-        std::string_view host,
+        std::string_view name,
         absl::AnyInvocable<void(
             std::error_code, absl::Span<address const>) &&> callback) = 0;
 };

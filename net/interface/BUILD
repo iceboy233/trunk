@@ -11,6 +11,7 @@ cc_library(
     ],
     deps = [
         "//net:asio",
+        "//net/types:host-port",
         "@abseil-cpp//absl/functional:any_invocable",
         "@abseil-cpp//absl/types:span",
     ],
