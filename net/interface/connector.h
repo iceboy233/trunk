@@ -1,9 +1,7 @@
 #ifndef _NET_INTERFACE_CONNECTOR_H
 #define _NET_INTERFACE_CONNECTOR_H
 
-#include <cstdint>
 #include <memory>
-#include <string_view>
 #include <system_error>
 
 #include "absl/functional/any_invocable.h"
