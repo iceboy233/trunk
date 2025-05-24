@@ -1,11 +1,14 @@
 #ifndef _BASE_FLAGS_H
 #define _BASE_FLAGS_H
 
+#include <vector>
+
 #include "absl/flags/flag.h"
 
 namespace base {
 
 void parse_flags(int argc, char *argv[]);
+void parse_flags(int argc, char *argv[], std::vector<char *> &positional_args);
 
 namespace detail {
 

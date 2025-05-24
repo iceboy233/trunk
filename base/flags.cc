@@ -28,4 +28,12 @@ void parse_flags(int argc, char *argv[]) {
     }
 }
 
+void parse_flags(int argc, char *argv[], std::vector<char *> &positional_args) {
+    absl::SetProgramUsageMessage("");
+    positional_args = absl::ParseCommandLine(argc, argv);
+    for (const auto &setter : *detail::setters) {
+        setter();
+    }
+}
+
 }  // namespace base
