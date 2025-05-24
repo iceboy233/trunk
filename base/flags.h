@@ -1,7 +1,6 @@
 #ifndef _BASE_FLAGS_H
 #define _BASE_FLAGS_H
 
-#include <functional>
 #include "absl/flags/flag.h"
 
 namespace base {
@@ -10,7 +9,7 @@ void parse_flags(int argc, char *argv[]);
 
 namespace detail {
 
-void register_flag(std::function<void()> setter);
+void register_flag(void (*setter)());
 
 }  // namespace detail
 }  // namespace base
