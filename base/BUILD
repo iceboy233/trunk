@@ -5,6 +5,7 @@ cc_library(
     srcs = ["flags.cc"],
     hdrs = ["flags.h"],
     deps = [
+        "@abseil-cpp//absl/base:no_destructor",
         "@abseil-cpp//absl/flags:flag",
         "@abseil-cpp//absl/flags:parse",
         "@abseil-cpp//absl/flags:usage",
