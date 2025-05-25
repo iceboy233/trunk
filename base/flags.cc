@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "absl/base/no_destructor.h"
+#include "absl/container/inlined_vector.h"
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
 
@@ -10,8 +11,10 @@ namespace base {
 namespace detail {
 namespace {
 
-std::vector<void (*)()> &setters() {
-    static absl::NoDestructor<std::vector<void (*)()>> setters;
+using Setters = absl::InlinedVector<void (*)(), 15>;
+
+Setters &setters() {
+    static absl::NoDestructor<Setters> setters;
     return *setters;
 }
 
