@@ -52,9 +52,13 @@ cc_library(
 
 cc_library(
     name = "native-file",
+    srcs = ["native-file.cc"],
     hdrs = ["native-file.h"],
     deps = select({
-        "@platforms//os:windows": ["//io/win32:file"],
+        "@platforms//os:windows": [
+            "//io/win32:file",
+            "//util:utf",
+        ],
         "//conditions:default": ["//io/posix:file"],
     }),
 )
