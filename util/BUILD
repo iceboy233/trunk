@@ -1,6 +1,25 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
+    name = "embed-data",
+    srcs = ["embed-data.cc"],
+    hdrs = ["embed-data.h"],
+    deps = [
+        "//base:types",
+        "@abseil-cpp//absl/types:span",
+    ],
+)
+
+cc_test(
+    name = "embed-data_test",
+    srcs = ["embed-data_test.cc"],
+    deps = [
+        ":embed-data",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "fibonacci-sequence",
     hdrs = ["fibonacci-sequence.h"],
 )
