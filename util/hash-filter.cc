@@ -4,6 +4,9 @@
 #include <immintrin.h>
 #elif defined(__SSE2__)
 #include <emmintrin.h>
+#if defined(__SSE4_1__)
+#include <smmintrin.h>
+#endif
 #elif defined(__ARM_NEON)
 #include <arm_neon.h>
 #endif
@@ -86,7 +89,8 @@ bool HashFilter32::find_two(const Bucket &b0, const Bucket &b1, uint32_t fp32) {
         reinterpret_cast<const __m128i *>(b0.entries.data()),
         reinterpret_cast<const __m128i *>(b1.entries.data()));
     __m256i b = _mm256_set1_epi32(fp32);
-    return _mm256_movemask_epi8(_mm256_cmpeq_epi32(a, b));
+    __m256i c = _mm256_cmpeq_epi32(a, b);
+    return !_mm256_testz_si256(c, c);
 #elif defined(__SSE2__)
     __m128i a0 = _mm_loadu_si128(
         reinterpret_cast<const __m128i *>(b0.entries.data()));
@@ -95,7 +99,12 @@ bool HashFilter32::find_two(const Bucket &b0, const Bucket &b1, uint32_t fp32) {
     __m128i b = _mm_set1_epi32(fp32);
     __m128i c0 = _mm_cmpeq_epi32(a0, b);
     __m128i c1 = _mm_cmpeq_epi32(a1, b);
-    return _mm_movemask_epi8(_mm_or_si128(c0, c1));
+    __m128i d = _mm_or_si128(c0, c1);
+#ifdef __SSE4_1__
+    return !_mm_testz_si128(d, d);
+#else
+    return _mm_movemask_epi8(d);
+#endif
 #elif defined(__ARM_NEON)
     uint32x4_t a0 = vld1q_u32(b0.entries.data());
     uint32x4_t a1 = vld1q_u32(b1.entries.data());
