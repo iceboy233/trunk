@@ -4,6 +4,8 @@
 #include <immintrin.h>
 #elif defined(__SSE2__)
 #include <emmintrin.h>
+#elif defined(__ARM_NEON)
+#include <arm_neon.h>
 #endif
 #include <algorithm>
 #include <cassert>
@@ -94,6 +96,13 @@ bool HashFilter32::find_two(const Bucket &b0, const Bucket &b1, uint32_t fp32) {
     __m128i c0 = _mm_cmpeq_epi32(a0, b);
     __m128i c1 = _mm_cmpeq_epi32(a1, b);
     return _mm_movemask_epi8(_mm_or_si128(c0, c1));
+#elif defined(__ARM_NEON)
+    uint32x4_t a0 = vld1q_u32(b0.entries.data());
+    uint32x4_t a1 = vld1q_u32(b1.entries.data());
+    uint32x4_t b = vdupq_n_u32(fp32);
+    uint32x4_t c0 = vceqq_u32(a0, b);
+    uint32x4_t c1 = vceqq_u32(a1, b);
+    return vaddvq_u32(vorrq_u32(c0, c1));
 #else
     for (uint32_t entry : b0.entries) {
         if (entry == fp32) {
