@@ -144,6 +144,7 @@ def _impl(ctx):
             "/usr/include",
             "/usr/lib/gcc/" + ctx.attr.target,
             "/usr/lib/gcc-cross/" + ctx.attr.target,
+            "/usr/lib/linux/uapi",
             "/usr/" + ctx.attr.target + "/include",
         ],
         toolchain_identifier = "local",
