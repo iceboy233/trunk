@@ -1,6 +1,17 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
+    name = "interface",
+    hdrs = [
+        "connector.h",
+        "datagram.h",
+        "resolver.h",
+        "stream.h",
+    ],
+    deps = ["//net:asio"],
+)
+
+cc_library(
     name = "addr-port",
     srcs = ["addr-port.cc"],
     hdrs = ["addr-port.h"],

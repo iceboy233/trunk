@@ -6,10 +6,13 @@
 namespace net {
 
 using boost::asio::any_io_executor;
+using boost::asio::as_tuple;
+using boost::asio::as_tuple_t;
 using boost::asio::async_connect;
 using boost::asio::async_read;
 using boost::asio::async_read_until;
 using boost::asio::async_write;
+using boost::asio::awaitable;
 using boost::asio::basic_waitable_timer;
 using boost::asio::bind_executor;
 using boost::asio::buffer;
@@ -21,10 +24,16 @@ using boost::asio::buffered_stream;
 using boost::asio::buffered_write_stream;
 using boost::asio::buffers_begin;
 using boost::asio::buffers_end;
+using boost::asio::cancel_after;
+using boost::asio::cancel_at;
+using boost::asio::co_spawn;
 using boost::asio::connect;
 using boost::asio::const_buffer;
-using boost::asio::dispatch;
 using boost::asio::defer;
+using boost::asio::deferred;
+using boost::asio::deferred_t;
+using boost::asio::detached;
+using boost::asio::dispatch;
 using boost::asio::io_context;
 using boost::asio::mutable_buffer;
 using boost::asio::post;
@@ -40,9 +49,11 @@ using boost::asio::streambuf;
 using boost::asio::transfer_all;
 using boost::asio::transfer_at_least;
 using boost::asio::transfer_exactly;
+using boost::asio::use_awaitable;
+using boost::asio::use_awaitable_t;
 using boost::asio::wait_traits;
-using boost::asio::write;
 using boost::asio::writable_pipe;
+using boost::asio::write;
 using boost::asio::ip::address;
 using boost::asio::ip::address_v4;
 using boost::asio::ip::address_v4_iterator;
@@ -62,6 +73,7 @@ using boost::asio::ip::tcp;
 using boost::asio::ip::udp;
 
 namespace execution = boost::asio::execution;
+namespace this_coro = boost::asio::this_coro;
 
 }  // namespace net
 
