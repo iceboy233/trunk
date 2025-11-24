@@ -111,6 +111,16 @@ cc_library(
 )
 
 cc_library(
+    name = "system-connector",
+    srcs = ["system-connector.cc"],
+    hdrs = ["system-connector.h"],
+    deps = [
+        ":asio",
+        "//net/types:interface",
+    ],
+)
+
+cc_library(
     name = "timer-list",
     hdrs = ["timer-list.h"],
     deps = [":asio"],
