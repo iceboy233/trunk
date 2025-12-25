@@ -10,13 +10,13 @@
 namespace net {
 namespace {
 
-using TestTimerList = BasicTimerList<
-    util::MockClock, PollingWaitTraits, io_context::executor_type>;
+using TestTimerList =
+    BasicTimerList<basic_waitable_timer<util::MockClock, PollingWaitTraits>>;
 
 TEST(TimerListTest, timeout) {
     io_context io_context;
-    TestTimerList timer_list(
-        io_context.get_executor(), std::chrono::seconds(1));
+    TestTimerList timer_list(io_context.get_executor(),
+                             std::chrono::seconds(1));
     testing::MockFunction<void()> function;
     EXPECT_CALL(function, Call());
     TestTimerList::Timer timer(timer_list, function.AsStdFunction());
@@ -26,8 +26,8 @@ TEST(TimerListTest, timeout) {
 
 TEST(TimerListTest, update) {
     io_context io_context;
-    TestTimerList timer_list(
-        io_context.get_executor(), std::chrono::seconds(2));
+    TestTimerList timer_list(io_context.get_executor(),
+                             std::chrono::seconds(2));
     testing::MockFunction<void()> function;
     EXPECT_CALL(function, Call());
     TestTimerList::Timer timer(timer_list, function.AsStdFunction());
@@ -39,8 +39,8 @@ TEST(TimerListTest, update) {
 
 TEST(TimerListTest, cancel) {
     io_context io_context;
-    TestTimerList timer_list(
-        io_context.get_executor(), std::chrono::seconds(1));
+    TestTimerList timer_list(io_context.get_executor(),
+                             std::chrono::seconds(1));
     testing::MockFunction<void()> function;
     EXPECT_CALL(function, Call()).Times(0);
     {
