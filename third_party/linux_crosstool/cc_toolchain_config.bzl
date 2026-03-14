@@ -59,7 +59,11 @@ def _impl(ctx):
         flag_sets = [
             flag_set(
                 actions = all_compile_actions,
-                flag_groups = ([
+                flag_groups = [
+                    flag_group(
+                        flags = ["-fno-canonical-system-headers"],
+                    ),
+                ] + ([
                     flag_group(
                         flags = ctx.attr.compile_flags,
                     ),
@@ -144,7 +148,6 @@ def _impl(ctx):
             "/usr/include",
             "/usr/lib/gcc/" + ctx.attr.target,
             "/usr/lib/gcc-cross/" + ctx.attr.target,
-            "/usr/lib/linux/uapi",
             "/usr/" + ctx.attr.target + "/include",
         ],
         toolchain_identifier = "local",
