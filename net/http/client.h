@@ -81,7 +81,7 @@ private:
     tcp::resolver tcp_resolver_;
     boost::asio::ssl::context ssl_context_;
     absl::flat_hash_map<ConnectionKey, std::list<Connection *>> connections_;
-    TimerList timer_;
+    TimerList timer_list_;
 };
 
 }  // namespace http

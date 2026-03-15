@@ -30,8 +30,6 @@ public:
 
     void start(RequestState request_state);
 
-    TimerList::Handle &timer_handle() { return timer_handle_; }
-
     std::optional<std::list<Connection *>::iterator> &connections_iter() {
         return connections_iter_;
     }
@@ -40,7 +38,6 @@ protected:
     void finish(std::error_code ec, Response response);
 
     RequestState request_state_;
-    TimerList::Handle timer_handle_;
     std::optional<std::list<Connection *>::iterator> connections_iter_;
 };
 
@@ -58,7 +55,8 @@ protected:
           stream_(client_.executor_, std::forward<ArgsT>(args)...),
           protocol_(protocol),
           host_(host),
-          port_(port) {}
+          port_(port),
+          timer_(client_.timer_list_, [this]() { close(); }) {}
 
     void resolve() override;
     void connect(const tcp::resolver::results_type &endpoints);
@@ -76,6 +74,7 @@ protected:
     uint16_t port_;
     boost::beast::flat_buffer read_buffer_;
     std::optional<ResponseParser> response_parser_;
+    TimerList::Timer timer_;
 };
 
 class Client::HttpConnection : public Client::ConnectionImpl<tcp::socket> {
@@ -103,7 +102,7 @@ Client::Client(const any_io_executor &executor, const Options &options)
       options_(options),
       tcp_resolver_(executor_),
       ssl_context_(options_.ssl_method),
-      timer_(executor_, options_.connection_timeout) {}
+      timer_list_(executor_, options_.connection_timeout) {}
 
 void Client::request(
     Protocol protocol,
@@ -138,10 +137,6 @@ void Client::request(
         connection->start({std::move(request),
                            std::move(options.progress_callback),
                            std::move(callback)});
-        connection->timer_handle() = timer_.schedule([this, connection]() {
-            connection->timer_handle() = timer_.null_handle();
-            connection->close();
-        });
         connection->resolve();
     }
 }
@@ -191,9 +186,7 @@ void Client::ConnectionImpl<StreamT>::connect(
 
 template <typename StreamT>
 void Client::ConnectionImpl<StreamT>::keep_alive() {
-    if (timer_handle_ != client_.timer_.null_handle()) {
-        client_.timer_.update(timer_handle_);
-    }
+    timer_.update();
 }
 
 template <typename StreamT>
@@ -269,10 +262,6 @@ template <typename StreamT>
 void Client::ConnectionImpl<StreamT>::close() {
     finish(make_error_code(std::errc::timed_out), {});
     stream_.lowest_layer().close();
-    if (timer_handle_ != client_.timer_.null_handle()) {
-        client_.timer_.cancel(timer_handle_);
-        timer_handle_ = client_.timer_.null_handle();
-    }
     if (connections_iter_) {
         auto iter = client_.connections_.find({protocol_, host_, port_});
         std::list<Connection *> &list = iter->second;
